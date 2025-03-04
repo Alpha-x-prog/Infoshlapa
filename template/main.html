@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ИнфоShlapa - новостной агрегатор</title>
+    <link rel="stylesheet" href="../style/main_style.css">
+    <link rel="stylesheet" href="../style/news_card.css">
+</head>
+<body>
+
+    <!--логотип-->
+    <div class="header-top">
+        <div class="logo-container">
+            <img src="../image/logotest.png" alt="logo">
+            <span class="island-moments-font">ИнфоShlapa</span>
+        </div>
+    </div>
+
+    <!--основной блок-->
+    <main class="main">
+        <!--верхняя панель-->
+        <section class="categories">
+            <a href="#" class="island-moments-font">ИнфоShlapa</a>
+            <nav class="nav">
+                <a href="#">Политика</a>
+                <a href="#">Культура</a>
+                <a href="#">Спорт</a>
+                <a href="#">Экономика</a>
+                <a href="#">Религия</a>
+                <a href="#">Технологии</a>
+            </nav>
+        </section>
+
+        <!--дата-->
+        <div class="date">
+            <span id="current-date">1 марта 2025</span>
+            <hr>
+        </div>
+
+        <!--блок новостей-->
+        
+        <div id="app">
+            <div class="news-container">
+                <news-card v-for="newsItem in newsData" :key="newsItem.id" :news="newsItem"></news-card>
+            </div>
+        </div>    
+        
+
+    </main>
+
+    <!--подвал-->
+    <footer class="footer">
+        <span>© 2025 ИнфоSlapa</span>
+        <div class="messenger-icons">
+        <a href=""><img src="#" alt="telegram"></a>
+        </div>
+    </footer>
+
+    <!--подключение vue.js-->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="../script/news_card.js"></script>
+</body>
+</html>
