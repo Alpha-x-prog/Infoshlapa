@@ -1,14 +1,24 @@
-const { createApp } = Vue
+const {createApp} = Vue
 
 createApp({
-data() {
+  data() {
     return {
-      newsData: [] // Initialize as an empty array
+      newsData: [], // Initialize as an empty array
+      currentCategory: 'all' // Initialize with 'all'
     };
-},
-components: {
+  },
+  computed: {
+    filteredNews() {
+      if (this.currentCategory === 'all') {
+        return this.newsData;
+      } else {
+        return this.newsData.filter(newsItem => newsItem.category === this.currentCategory);
+      }
+    }
+  },
+  components: {
     'news-card': {
-      props: ['news'], // Receive the news item as a prop
+      props: ['news'],
         template: `
         <div class="news-card" @click="toggleContent">
             <div class="news-image-container" :class="{ hidden: showText }">
@@ -27,22 +37,27 @@ components: {
     `,
     data() {
         return {
-            showText: false
+          showText: false
         };
-    },
-    methods: {
+      },
+      methods: {
         toggleContent() {
-            this.showText = !this.showText;
+          this.showText = !this.showText;
         }
-        }
+      }
     }
-},
-mounted() {
+  },
+  mounted() {
     fetch('../json/news.json')
-        .then(response => response.json())
-        .then(data => {
+      .then(response => response.json())
+      .then(data => {
         this.newsData = data; // Assign the entire array to newsData
-        })
-        .catch(error => console.error('Error fetching data:', error));
+      })
+      .catch(error => console.error('Error fetching data:', error));
+  },
+  methods: {
+    setCategory(category) {
+      this.currentCategory = category;
     }
+  }
 }).mount('#app')

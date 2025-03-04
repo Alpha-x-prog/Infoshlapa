@@ -19,32 +19,89 @@
 
     <!--основной блок-->
     <main class="main">
-        <!--верхняя панель-->
+        
+
+        
+
+        <!--блок новостей-->
+        
+        <div id="app">
+
+            <!--верхняя панель-->
         <section class="categories">
-            <a href="#" class="island-moments-font">ИнфоShlapa</a>
+
+            <a 
+                class="category-link island-moments-font"
+                :class="{ active: currentCategory === 'all' }"
+                href="#"
+                @click.prevent="setCategory('all')"
+                >
+                ИнфоShlapa</a>
+
             <nav class="nav">
-                <a href="#">Политика</a>
-                <a href="#">Культура</a>
-                <a href="#">Спорт</a>
-                <a href="#">Экономика</a>
-                <a href="#">Религия</a>
-                <a href="#">Технологии</a>
+
+                <a 
+                    class="category-link"
+                    :class="{ active: currentCategory === 'Политика' }"
+                    href="#"
+                    @click.prevent="setCategory('Политика')"
+                >
+                Политика</a>
+
+                <a 
+                    class="category-link"
+                    :class="{ active: currentCategory === 'Культура' }"
+                    href="#"
+                    @click.prevent="setCategory('Культура')"
+                >
+                Культура</a>
+
+                <a 
+                    class="category-link"
+                    :class="{ active: currentCategory === 'Спорт' }"
+                    href="#"
+                    @click.prevent="setCategory('Спорт')"
+                >Спорт</a>
+
+                <a 
+                    class="category-link"
+                    :class="{ active: currentCategory === 'Экономика' }"
+                    href="#"
+                    @click.prevent="setCategory('Экономика')"
+                >Экономика</a>
+
+                <a 
+                    class="category-link"
+                    :class="{ active: currentCategory === 'Криптовалюта' }"
+                    href="#"
+                    @click.prevent="setCategory('Криптовалюта')"
+                >Криптовалюта</a>
+
+                <a 
+                    class="category-link"
+                    :class="{ active: currentCategory === 'Технологии' }"
+                    href="#"
+                    @click.prevent="setCategory('Технологии')"
+                >Технологии</a>
+
             </nav>
         </section>
 
-        <!--дата-->
+            
+            <!--дата-->
         <div class="date">
             <span id="current-date">1 марта 2025</span>
             <hr>
         </div>
 
-        <!--блок новостей-->
-        
-        <div id="app">
             <div class="news-container">
-                <news-card v-for="newsItem in newsData" :key="newsItem.id" :news="newsItem"></news-card>
-            </div>
-        </div>    
+            <news-card
+                v-for="newsItem in filteredNews"
+                :key="newsItem.id"
+                :news="newsItem"
+            ></news-card>
+        </div>
+        </div> 
         
 
     </main>

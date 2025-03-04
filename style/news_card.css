@@ -10,10 +10,10 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 4%;
+
 }
 .news-card {
-    margin-top: 40px;
+    margin: 20px;
     width: 350px;
     min-height: 400px;
     display: flex;

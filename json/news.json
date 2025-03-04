@@ -3,10 +3,10 @@
         "id": 1,
         "imageUrl": "https://i.pinimg.com/originals/d3/c3/f8/d3c3f838ca65a0b2073164fd92f0c545.jpg",
         "category": "Политика",
-        "title": "Заголовок первой новости",
+        "title": "Кукушка?",
         "date": "10.10.2024",
         "sourceUrl": "https://example.com/news1",
-        "text": "Текст первой новостнойвосТекст новостнойвосТекст перв новостнойвосТекст перв новостнойвосТекст перв новостнойвосТекст перв первой новостнойвостнойТекст первой новостнойвостнойТекст первой новостнойвостнойТекст первой новостнойвостнойТекст первой новостнойвостнойТекст первой новостнойвостнойТекст первой новостнойвостнойтной статьи  Текст первой новостной статьи. Текст первой новостной статьи."
+        "text": "В московском спортзале малолетний сигма устроил фитоняшкам стресс-тест, уминая бургер прямо за стеклом. Так выглядит баланс вселенной."
     },
     {
         "id": 2,
@@ -20,7 +20,7 @@
     {
         "id": 3,
         "imageUrl": "https://i.natgeofe.com/n/c8b67c25-b3e2-4b48-aa4e-41e44b245bdc/shutterstock_528933889.jpg",
-        "category": "Технологии",
+        "category": "Экономика",
         "title": "Заголовок третьей новости",
         "date": "12.10.2024",
         "sourceUrl": "https://example.com/news3",
@@ -29,7 +29,7 @@
     {
         "id": 4,
         "imageUrl": "https://i.natgeofe.com/n/c8b67c25-b3e2-4b48-aa4e-41e44b245bdc/shutterstock_528933889.jpg",
-        "category": "Технологии",
+        "category": "Криптовалюта",
         "title": "Заголовок третьей новости",
         "date": "12.10.2024",
         "sourceUrl": "https://example.com/news3",
@@ -55,6 +55,78 @@
     },
     {
         "id": 7,
+        "imageUrl": "https://i.natgeofe.com/n/c8b67c25-b3e2-4b48-aa4e-41e44b245bdc/shutterstock_528933889.jpg",
+        "category": "Технологии",
+        "title": "Заголовок третьей новости",
+        "date": "12.10.2024",
+        "sourceUrl": "https://example.com/news3",
+        "text": "Текст третьей новостной статьи.  Текст третьей новостной статьи. Текст третьей новостной статьи."
+    },
+    {
+        "id": 8,
+        "imageUrl": "https://i.natgeofe.com/n/c8b67c25-b3e2-4b48-aa4e-41e44b245bdc/shutterstock_528933889.jpg",
+        "category": "Технологии",
+        "title": "Заголовок третьей новости",
+        "date": "12.10.2024",
+        "sourceUrl": "https://example.com/news3",
+        "text": "Текст третьей новостной статьи.  Текст третьей новостной статьи. Текст третьей новостной статьи."
+    },
+    {
+        "id": 9,
+        "imageUrl": "https://i.natgeofe.com/n/c8b67c25-b3e2-4b48-aa4e-41e44b245bdc/shutterstock_528933889.jpg",
+        "category": "Культура",
+        "title": "Заголовок третьей новости",
+        "date": "12.10.2024",
+        "sourceUrl": "https://example.com/news3",
+        "text": "Текст третьей новостной статьи.  Текст третьей новостной статьи. Текст третьей новостной статьи."
+    },
+    {
+        "id": 10,
+        "imageUrl": "https://i.natgeofe.com/n/c8b67c25-b3e2-4b48-aa4e-41e44b245bdc/shutterstock_528933889.jpg",
+        "category": "Криптовалюта",
+        "title": "Заголовок третьей новости",
+        "date": "12.10.2024",
+        "sourceUrl": "https://example.com/news3",
+        "text": "Текст третьей новостной статьи.  Текст третьей новостной статьи. Текст третьей новостной статьи."
+    },
+    {
+        "id": 11,
+        "imageUrl": "https://i.natgeofe.com/n/c8b67c25-b3e2-4b48-aa4e-41e44b245bdc/shutterstock_528933889.jpg",
+        "category": "Культура",
+        "title": "Заголовок третьей новости",
+        "date": "12.10.2024",
+        "sourceUrl": "https://example.com/news3",
+        "text": "Текст третьей новостной статьи.  Текст третьей новостной статьи. Текст третьей новостной статьи."
+    },
+    {
+        "id": 12,
+        "imageUrl": "https://i.natgeofe.com/n/c8b67c25-b3e2-4b48-aa4e-41e44b245bdc/shutterstock_528933889.jpg",
+        "category": "Спорт",
+        "title": "Заголовок третьей новости",
+        "date": "12.10.2024",
+        "sourceUrl": "https://example.com/news3",
+        "text": "Текст третьей новостной статьи.  Текст третьей новостной статьи. Текст третьей новостной статьи."
+    },
+    {
+        "id": 13,
+        "imageUrl": "https://i.natgeofe.com/n/c8b67c25-b3e2-4b48-aa4e-41e44b245bdc/shutterstock_528933889.jpg",
+        "category": "Криптовалюта",
+        "title": "Заголовок третьей новости",
+        "date": "12.10.2024",
+        "sourceUrl": "https://example.com/news3",
+        "text": "Текст третьей новостной статьи.  Текст третьей новостной статьи. Текст третьей новостной статьи."
+    },
+    {
+        "id": 14,
+        "imageUrl": "https://i.natgeofe.com/n/c8b67c25-b3e2-4b48-aa4e-41e44b245bdc/shutterstock_528933889.jpg",
+        "category": "Политика",
+        "title": "Заголовок третьей новости",
+        "date": "12.10.2024",
+        "sourceUrl": "https://example.com/news3",
+        "text": "Текст третьей новостной статьи.  Текст третьей новостной статьи. Текст третьей новостной статьи."
+    },
+    {
+        "id": 15,
         "imageUrl": "https://i.natgeofe.com/n/c8b67c25-b3e2-4b48-aa4e-41e44b245bdc/shutterstock_528933889.jpg",
         "category": "Технологии",
         "title": "Заголовок третьей новости",
