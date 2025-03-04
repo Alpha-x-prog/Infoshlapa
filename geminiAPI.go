@@ -32,7 +32,7 @@ type Response struct {
 	} `json:"candidates"`
 }
 
-func geminiResponse(site_url string) {
+func geminiResponse(question string) {
 	// Прокси-сервер с логином и паролем
 	proxyURL, _ := url.Parse("http://user204274:wdumt6@193.37.197.158:5167")
 	transport := &http.Transport{Proxy: http.ProxyURL(proxyURL)}
@@ -51,7 +51,7 @@ func geminiResponse(site_url string) {
 				Parts: []struct {
 					Text string `json:"text"`
 				}{
-					{Text: "Напиши на русском языке краткую выдержку в 4 предложениях " + site_url},
+					{Text: question},
 				}, //https://gizmodo.com/musk-and-trumps-fort-knox-trip-is-about-bitcoin-2000569420
 			},
 		},
@@ -80,6 +80,7 @@ func geminiResponse(site_url string) {
 	}
 
 	// Достаем текст
+	//fmt.Println(string(body))
 	if len(result.Candidates) > 0 && len(result.Candidates[0].Content.Parts) > 0 {
 		fmt.Println(result.Candidates[0].Content.Parts[0].Text)
 	} else {

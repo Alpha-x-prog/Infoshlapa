@@ -22,10 +22,7 @@ type NewsResponse struct {
 	Articles []News `json:"articles"`
 }
 
-func main() {
-	apiKeyNews := "8edd255699aa4fdfa562f51ac68de15e"
-	url := "https://newsapi.org/v2/top-headlines?country=us&apiKey=" + apiKeyNews
-
+func newsTagUpdate(url string) {
 	resp, err := http.Get(url)
 	if err != nil {
 		fmt.Println("Ошибка запроса:", err)
@@ -37,33 +34,40 @@ func main() {
 	var news NewsResponse
 	json.Unmarshal(body, &news)
 
-	for _, article := range news.Articles {
-		fmt.Println("Заголовок:", article.Title)
-		fmt.Println("Ссылка:", article.URL)
-		fmt.Println("Картинка:", article.URLToImage)
-		fmt.Println("----")
-		geminiResponse(article.URL)
-		break
-	}
 	db, err := InitDB()
 	if err != nil {
 		log.Fatal("Failed to initialize database:", err)
 	}
 	defer db.Close()
 
-	article := News{
-		Title:       "Sample News Title",
-		Tags:        "Tech, AI",
-		Description: "This is a sample news article.",
-		URL:         "https://example.com/news",
-		URLToImage:  "https://example.com/image.jpg",
-		PublishedAt: "2025-03-04",
-	}
+	for _, article := range news.Articles {
+		fmt.Println("Заголовок:", article.Title)
+		fmt.Println("Теги:", article.Tags)
+		fmt.Println("Ссылка:", article.URL)
+		fmt.Println("Картинка:", article.URLToImage)
+		fmt.Println("----")
+		geminiResponse(article.URL)
+		article := News{
+			Title:       article.Title,
+			Tags:        article.Tags,
+			Description: article.Description,
+			URL:         article.URL,
+			URLToImage:  article.URLToImage,
+			PublishedAt: article.PublishedAt,
+		}
 
-	err = InsertNews(db, article)
-	if err != nil {
-		log.Println("Failed to insert article:", err)
-	} else {
-		fmt.Println("Article inserted successfully")
+		err = InsertNews(db, article)
+		if err != nil {
+			log.Println("Failed to insert article:", err)
+		} else {
+			fmt.Println("Article inserted successfully")
+		}
 	}
+}
+
+func newsUpdate() {
+	listTags := []string{"top-headlines?country=us", "policy", "culture"}
+	apiKeyNews := "8edd255699aa4fdfa562f51ac68de15e"
+	url := "https://newsapi.org/v2/" + listTags[0] + "&pageSize=5&apiKey=" + apiKeyNews
+	newsTagUpdate(url)
 }
