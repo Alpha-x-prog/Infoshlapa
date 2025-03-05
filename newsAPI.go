@@ -22,7 +22,7 @@ type NewsResponse struct {
 	Articles []News `json:"articles"`
 }
 
-func newsTagUpdate(url string) {
+func newsTagUpdate(url string, tag string) {
 	resp, err := http.Get(url)
 	if err != nil {
 		fmt.Println("Ошибка запроса:", err)
@@ -40,17 +40,21 @@ func newsTagUpdate(url string) {
 	}
 	defer db.Close()
 
+	textik := scrapperCollyan(url)
+	fmt.Println(textik)
+
 	for _, article := range news.Articles {
 		fmt.Println("Заголовок:", article.Title)
 		fmt.Println("Теги:", article.Tags)
 		fmt.Println("Ссылка:", article.URL)
 		fmt.Println("Картинка:", article.URLToImage)
 		fmt.Println("----")
-		geminiResponse(article.URL)
+		aiDescribe := geminiResponse("Напиши краткую выжимку по тексту в 3 предложения" + textik)
+		//fmt.Println(aiDescribe)
 		article := News{
 			Title:       article.Title,
-			Tags:        article.Tags,
-			Description: article.Description,
+			Tags:        tag,
+			Description: aiDescribe,
 			URL:         article.URL,
 			URLToImage:  article.URLToImage,
 			PublishedAt: article.PublishedAt,
@@ -66,8 +70,13 @@ func newsTagUpdate(url string) {
 }
 
 func newsUpdate() {
-	listTags := []string{"top-headlines?country=us", "policy", "culture"}
+	listTagsUS := []string{"general", "business", "entertainment"}
+	listTagsRU := []string{"Общее", "Политика", "Культура", "Спорт", "Экономика", "Криптовалюта", "Технологии"}
 	apiKeyNews := "8edd255699aa4fdfa562f51ac68de15e"
-	url := "https://newsapi.org/v2/" + listTags[0] + "&pageSize=5&apiKey=" + apiKeyNews
-	newsTagUpdate(url)
+	for i, tag := range listTagsUS {
+		fmt.Println("ПОшло поехало", tag)
+		//url := "https://newsapi.org/v2/" + tag + "&pageSize=1&apiKey=" + apiKeyNews
+		url := "https://newsapi.org/v2/top-headlines?country=us&category=" + tag + "&pageSize=2&apiKey=" + apiKeyNews
+		newsTagUpdate(url, listTagsRU[i])
+	}
 }

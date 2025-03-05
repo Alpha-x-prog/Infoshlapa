@@ -32,7 +32,7 @@ type Response struct {
 	} `json:"candidates"`
 }
 
-func geminiResponse(question string) {
+func geminiResponse(question string) string {
 	// Прокси-сервер с логином и паролем
 	proxyURL, _ := url.Parse("http://user204274:wdumt6@193.37.197.158:5167")
 	transport := &http.Transport{Proxy: http.ProxyURL(proxyURL)}
@@ -66,7 +66,7 @@ func geminiResponse(question string) {
 	resp, err := client.Do(req)
 	if err != nil {
 		fmt.Println("Ошибка запроса:", err)
-		return
+		return "error"
 	}
 	defer resp.Body.Close()
 
@@ -76,14 +76,15 @@ func geminiResponse(question string) {
 	err = json.Unmarshal(body, &result)
 	if err != nil {
 		fmt.Println("Ошибка парсинга JSON:", err)
-		return
+		return "error"
 	}
 
 	// Достаем текст
 	//fmt.Println(string(body))
 	if len(result.Candidates) > 0 && len(result.Candidates[0].Content.Parts) > 0 {
-		fmt.Println(result.Candidates[0].Content.Parts[0].Text)
+		return result.Candidates[0].Content.Parts[0].Text
 	} else {
 		fmt.Println("Нет данных в ответе")
 	}
+	return "error"
 }
