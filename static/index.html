@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Новости</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+<div id="app">
+    <h2>Новости</h2>
+    <ul>
+        <li v-for="news in newsList" :key="news.id">
+            <h3>{{ news.title }}</h3>
+            <p>{{ news.description }}</p>
+            <small>{{ formatDate(news.publishedAt) }}</small>
+        </li>
+    </ul>
+    <button v-if="hasMore" @click="loadMore">Загрузить ещё</button>
+</div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gocolly/colly"
 )
 
@@ -17,7 +18,10 @@ func scrapperCollyan(url string) string {
 	//	fmt.Println("Visiting", r.URL)
 	//})
 
-	c.Visit("https://www.cnn.com/2025/03/03/entertainment/vanity-fair-oscar-party-2025/index.html")
+	//c.Visit("https://www.cnn.com/2025/03/03/entertainment/vanity-fair-oscar-party-2025/index.html")
+	fmt.Println("Передаётся ссылка", url)
+	c.Visit(url)
+
 	return articleText
 
 }

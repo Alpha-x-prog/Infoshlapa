@@ -40,16 +40,14 @@ func newsTagUpdate(url string, tag string) {
 	}
 	defer db.Close()
 
-	textik := scrapperCollyan(url)
-	fmt.Println(textik)
-
 	for _, article := range news.Articles {
+		textik := scrapperCollyan(article.URL)
 		fmt.Println("Заголовок:", article.Title)
 		fmt.Println("Теги:", article.Tags)
 		fmt.Println("Ссылка:", article.URL)
 		fmt.Println("Картинка:", article.URLToImage)
 		fmt.Println("----")
-		aiDescribe := geminiResponse("Напиши краткую выжимку по тексту в 3 предложения" + textik)
+		aiDescribe := geminiResponse("Напиши краткую выжимку по тексту в 3 предложения" + textik + "Если текста нет, выведи слово error")
 		//fmt.Println(aiDescribe)
 		article := News{
 			Title:       article.Title,
@@ -60,6 +58,7 @@ func newsTagUpdate(url string, tag string) {
 			PublishedAt: article.PublishedAt,
 		}
 
+		selectTagBD10("культура")
 		err = InsertNews(db, article)
 		if err != nil {
 			log.Println("Failed to insert article:", err)
@@ -70,13 +69,13 @@ func newsTagUpdate(url string, tag string) {
 }
 
 func newsUpdate() {
-	listTagsUS := []string{"general", "business", "entertainment"}
+	listTagsUS := []string{"general"}
 	listTagsRU := []string{"Общее", "Политика", "Культура", "Спорт", "Экономика", "Криптовалюта", "Технологии"}
 	apiKeyNews := "8edd255699aa4fdfa562f51ac68de15e"
 	for i, tag := range listTagsUS {
 		fmt.Println("ПОшло поехало", tag)
 		//url := "https://newsapi.org/v2/" + tag + "&pageSize=1&apiKey=" + apiKeyNews
-		url := "https://newsapi.org/v2/top-headlines?country=us&category=" + tag + "&pageSize=2&apiKey=" + apiKeyNews
+		url := "https://newsapi.org/v2/top-headlines?country=us&category=" + tag + "&pageSize=1&apiKey=" + apiKeyNews
 		newsTagUpdate(url, listTagsRU[i])
 	}
 }

@@ -22,3 +22,44 @@ func InsertNews(db *sql.DB, article News) error {
 	}
 	return nil
 }
+
+func selectTagBD10(tag string) []string {
+	// Открываем подключение к базе данных
+	db, err := sql.Open("sqlite3", "news.db")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	// Определяем нужный тег
+	tag = "Культура" // Здесь можно подставить любое нужное значение
+
+	// Запрос к базе данных
+	rows, err := db.Query("SELECT title FROM news WHERE tags = ? ORDER BY id DESC LIMIT 10", tag)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+
+	// Обход результатов
+	var titles []string
+	for rows.Next() {
+		var title string
+		if err := rows.Scan(&title); err != nil {
+			log.Fatal(err)
+		}
+		titles = append(titles, title)
+	}
+
+	// Проверяем на ошибки при итерации
+	if err := rows.Err(); err != nil {
+		log.Fatal(err)
+	}
+
+	// Выводим заголовки
+	//fmt.Println("Последние 10 новостей с тегом", tag, ":")
+	//for _, title := range titles {
+	//	fmt.Println("-", title)
+	//}
+	return titles
+}
