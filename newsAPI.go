@@ -8,16 +8,6 @@ import (
 	"net/http"
 )
 
-type News struct {
-	ID          int    `json:"id" db:"id"`
-	Title       string `json:"title" db:"title"`
-	Tags        string `json:"tags" db:"tags"`
-	Description string `json:"description" db:"description"`
-	URL         string `json:"url" db:"url"`
-	URLToImage  string `json:"urlToImage" db:"urlToImage"`
-	PublishedAt string `json:"publishedAt" db:"publishedAt"`
-}
-
 type NewsResponse struct {
 	Articles []News `json:"articles"`
 }
