@@ -23,6 +23,7 @@ type News struct {
 }
 
 func main() {
+	newsUpdate()
 	var err error
 	// Подключаемся к базе данных SQLite
 	db, err = sql.Open("sqlite3", "./news.db")

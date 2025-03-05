@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	_ "github.com/mattn/go-sqlite3"
 	"log"
 )
@@ -23,43 +24,30 @@ func InsertNews(db *sql.DB, article News) error {
 	return nil
 }
 
-func selectTagBD10(tag string) []string {
-	// Открываем подключение к базе данных
-	db, err := sql.Open("sqlite3", "news.db")
+func checkSimilarTitle(db *sql.DB, title string, tag string) (bool, error) {
+	query := `
+		SELECT COUNT(*) FROM (
+			SELECT title FROM news
+			WHERE tags = ?
+			ORDER BY id DESC
+			LIMIT 20
+		) WHERE title = ?
+	`
+	var count int
+	err := db.QueryRow(query, tag, title).Scan(&count)
 	if err != nil {
-		log.Fatal(err)
+		return false, fmt.Errorf("ошибка запроса: %v", err)
 	}
-	defer db.Close()
-
-	// Определяем нужный тег
-	tag = "Культура" // Здесь можно подставить любое нужное значение
-
-	// Запрос к базе данных
-	rows, err := db.Query("SELECT title FROM news WHERE tags = ? ORDER BY id DESC LIMIT 10", tag)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer rows.Close()
-
-	// Обход результатов
-	var titles []string
-	for rows.Next() {
-		var title string
-		if err := rows.Scan(&title); err != nil {
-			log.Fatal(err)
-		}
-		titles = append(titles, title)
-	}
-
-	// Проверяем на ошибки при итерации
-	if err := rows.Err(); err != nil {
-		log.Fatal(err)
-	}
-
-	// Выводим заголовки
-	//fmt.Println("Последние 10 новостей с тегом", tag, ":")
-	//for _, title := range titles {
-	//	fmt.Println("-", title)
+	//query := "SELECT COUNT(*) FROM news WHERE category = ? AND title = ?"
+	//err := db.QueryRow(query, category, title).Scan(&title)
+	//if err != nil {
+	//	if err == sql.ErrNoRows {
+	//		fmt.Println("В таблице news нет данных.")
+	//	} else {
+	//		log.Fatalf("Ошибка запроса: %v", err)
+	//	}
+	//} else {
+	//	fmt.Printf("Успешно! Заголовок первой новости: %s\n", title)
 	//}
-	return titles
+	return count > 0, nil
 }
