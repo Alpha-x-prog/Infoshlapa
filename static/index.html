@@ -1,28 +1,141 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Новости</title>
+    <title>ИнфоShlapa - новостной агрегатор</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="/static/main_style.css">
+    <link rel="stylesheet" href="/static/news_card.css">
 </head>
 <body>
-<div id="app">
-    <h2>Новости</h2>
-    <ul>
-        <li v-for="news in newsList" :key="news.id">
-            <h3>{{ news.title }}</h3>
-            <img v-if="news.urlToImage" :src="news.urlToImage" alt="Новость" style="max-width: 300px;">
-            <p>{{ news.description }}</p>
-            <small>{{ formatDate(news.publishedAt) }}</small>
-        </li>
-    </ul>
 
-    <button v-if="hasMore" @click="loadMore">Загрузить ещё</button>
-</div>
+    <!--логотип-->
+    <div class="header-top">
+        <div class="logo-container">
+            <img src="../image/logotest.png" alt="logo">
+            <span class="island-moments-font">ИнфоShlapa</span>
+        </div>
+    </div>
 
-<script src="/static/app.js"></script>
+    <!--<div class="up-arrow">!</div>-->
+
+    <!--основной блок-->
+    <main class="main">
+        
+
+        
+
+        <!--блок новостей-->
+        
+        <div id="app">
+
+            <!--верхняя панель-->
+           <!-- "бизнес", "развлечения", "здоровье", "наука", "спорт", "технологии" -->
+        <section class="categories">
+
+            <a 
+                class="category-link island-moments-font"
+                :class="{ active: currentCategory === 'all' }"
+                href="#"
+                @click.prevent="setCategory('all')"
+                >
+                ИнфоShlapa</a>
+
+            <nav class="nav">
+
+                <a
+                        class="category-link"
+                        :class="{ active: currentCategory === 'общее' }"
+                        href="#"
+                        @click.prevent="setCategory('общее')"
+                >
+                    общее</a>
+
+                <a 
+                    class="category-link"
+                    :class="{ active: currentCategory === 'бизнес' }"
+                    href="#"
+                    @click.prevent="setCategory('бизнес')"
+                >
+                    бизнес</a>
+
+                <a 
+                    class="category-link"
+                    :class="{ active: currentCategory === 'развлечения' }"
+                    href="#"
+                    @click.prevent="setCategory('развлечения')"
+                >
+                    развлечения</a>
+
+                <a 
+                    class="category-link"
+                    :class="{ active: currentCategory === 'здоровье' }"
+                    href="#"
+                    @click.prevent="setCategory('здоровье')"
+                >здоровье</a>
+
+                <a 
+                    class="category-link"
+                    :class="{ active: currentCategory === 'наука' }"
+                    href="#"
+                    @click.prevent="setCategory('наука')"
+                >наука</a>
+
+                <a 
+                    class="category-link"
+                    :class="{ active: currentCategory === 'спорт' }"
+                    href="#"
+                    @click.prevent="setCategory('спорт')"
+                >спорт</a>
+
+                <a 
+                    class="category-link"
+                    :class="{ active: currentCategory === 'технологии' }"
+                    href="#"
+                    @click.prevent="setCategory('технологии')"
+                >технологии</a>
+
+            </nav>
+        </section>
+
+            
+            <!--дата-->
+        <div class="date">
+            <span id="current-date">{{ formattedDateTime }}</span>
+            <hr>
+        </div>
+
+            <div class="news-container">
+            <news-card
+                v-for="newsItem in filteredNews"
+                :key="newsItem.id"
+                :news="newsItem"
+            ></news-card>
+        </div>
+
+            <button @click="loadMore" v-if="hasMore" class="load-more-btn">
+                Загрузить ещё
+            </button>
+
+        </div>
+
+
+
+
+    </main>
+
+    <!--подвал-->
+    <footer class="footer">
+        <span>© 2025 ИнфоSlapa</span>
+        <div class="messenger-icons">
+        <a href=""><img src="#" alt="telegram"></a>
+        </div>
+    </footer>
+
+    <!--подключение vue.js-->
+    <!--<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>подключение vue.js-->
+    <script src="static/app.js"></script>
 </body>
 </html>
