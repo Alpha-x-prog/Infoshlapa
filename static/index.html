@@ -14,10 +14,12 @@
     <ul>
         <li v-for="news in newsList" :key="news.id">
             <h3>{{ news.title }}</h3>
+            <img v-if="news.urlToImage" :src="news.urlToImage" alt="Новость" style="max-width: 300px;">
             <p>{{ news.description }}</p>
             <small>{{ formatDate(news.publishedAt) }}</small>
         </li>
     </ul>
+
     <button v-if="hasMore" @click="loadMore">Загрузить ещё</button>
 </div>
 

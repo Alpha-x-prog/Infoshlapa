@@ -2,12 +2,11 @@ package main
 
 import (
 	"database/sql"
+	"github.com/gin-gonic/gin"
+	_ "github.com/mattn/go-sqlite3" // Импорт драйвера SQLite
 	"log"
 	"net/http"
 	"strconv"
-
-	"github.com/gin-gonic/gin"
-	_ "github.com/mattn/go-sqlite3" // Импорт драйвера SQLite
 )
 
 var db *sql.DB
@@ -55,12 +54,39 @@ func main() {
 func getNews(c *gin.Context) {
 	limit := 15
 	offset, _ := strconv.Atoi(c.DefaultQuery("offset", "0"))
+	tag := c.DefaultQuery("tags", "") // Получаем параметр tags
+
+	// Русские теги
+	listTagsRU := []string{"общее", "бизнес", "развлечения", "здоровье", "наука", "спорт", "технологии"}
+
+	// Проверяем, является ли переданный tag валидным
+	validTag := false
+	for _, t := range listTagsRU {
+		if tag == t {
+			validTag = true
+			break
+		}
+	}
 
 	// Логирование параметров запроса
-	log.Printf("Получение новостей с лимитом %d и смещением %d", limit, offset)
+	log.Printf("Получение новостей с лимитом %d, смещением %d, тегом: %s", limit, offset, tag)
 
-	// Запрос для извлечения новостей из базы данных
-	rows, err := db.Query("SELECT id, title, tags, description, url, urlToImage, publishedAt FROM news ORDER BY publishedAt DESC LIMIT ? OFFSET ?", limit, offset)
+	// SQL-запрос с фильтрацией по тегу (если он передан и валиден)
+	var rows *sql.Rows
+	var err error
+
+	if validTag {
+		rows, err = db.Query(
+			"SELECT id, title, tags, description, url, urlToImage, publishedAt FROM news WHERE tags = ? ORDER BY publishedAt DESC LIMIT ? OFFSET ?",
+			tag, limit, offset,
+		)
+	} else {
+		rows, err = db.Query(
+			"SELECT id, title, tags, description, url, urlToImage, publishedAt FROM news ORDER BY publishedAt DESC LIMIT ? OFFSET ?",
+			limit, offset,
+		)
+	}
+
 	if err != nil {
 		log.Printf("Ошибка при выполнении запроса: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Не удалось выполнить запрос"})
