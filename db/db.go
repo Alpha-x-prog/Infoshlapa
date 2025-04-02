@@ -2,8 +2,9 @@ package db
 
 import (
 	"database/sql"
-	"fmt"
 	_ "github.com/mattn/go-sqlite3"
+	"strings"
+	"time"
 )
 
 const dbFile = "news.db"
@@ -17,14 +18,14 @@ type NewsArticle struct {
 	VideoURL    string   `json:"video_url"`
 	Description string   `json:"description"`
 	Content     string   `json:"content"`
-	PubDate     string   `json:"pubDate"`
-	ImageURL    string   `json:"image_url"`
+	PubDate     string   `json:"publishedAt"`
+	ImageURL    string   `json:"urlToImage"`
 	SourceID    string   `json:"source_id"`
 	SourceName  string   `json:"source_name"`
-	SourceURL   string   `json:"source_url"`
+	SourceURL   string   `json:"url"`
 	Language    string   `json:"language"`
 	Country     []string `json:"country"`
-	Category    []string `json:"category"`
+	Category    []string `json:"tags"`
 	Sentiment   string   `json:"sentiment"`
 }
 
@@ -67,10 +68,21 @@ func InitDB() (*sql.DB, error) {
 func SaveToDB(db *sql.DB, article NewsArticle) error {
 	_, err := db.Exec(
 		`INSERT OR IGNORE INTO news (article_id, title, link, keywords, creator, video_url, description, content, pub_date, image_url, source_id, source_name, source_url, language, country, category, sentiment)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-		article.ArticleID, article.Title, article.Link, fmt.Sprintf("%v", article.Keywords), fmt.Sprintf("%v", article.Creator), article.VideoURL,
-		article.Description, article.Content, article.PubDate, article.ImageURL, article.SourceID, article.SourceName,
-		article.SourceURL, article.Language, fmt.Sprintf("%v", article.Country), fmt.Sprintf("%v", article.Category), article.Sentiment,
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		article.ArticleID, article.Title, article.Link,
+		strings.Join(article.Keywords, ", "),
+		strings.Join(article.Creator, ", "),
+		article.VideoURL, article.Description, article.Content,
+		article.PubDate, article.ImageURL, article.SourceID,
+		article.SourceName, article.SourceURL, article.Language,
+		strings.Join(article.Country, ", "),
+		strings.Join(article.Category, ", "),
+		article.Sentiment,
 	)
+	return err
+}
+
+func saveToDBAI(db *sql.DB, question, answer string) error {
+	_, err := db.Exec("INSERT INTO conversations (question, answer, timestamp) VALUES (?, ?, ?)", question, answer, time.Now().Unix())
 	return err
 }

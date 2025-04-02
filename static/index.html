@@ -12,6 +12,8 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
     integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
     crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <!-- Add this line to link to the AI widget style -->
+  <link rel="stylesheet" href="/static/ai_widget.css">
 </head>
 
 <body>
@@ -58,6 +60,7 @@
             @click.prevent="setCategory('спорт')" @click="toggleMenu">спорт</a>
           <a class="category-link" :class="{ active: currentCategory === 'технологии' }" href="#"
             @click.prevent="setCategory('технологии')" @click="toggleMenu">технологии</a>
+
         </nav>
       </section>
 
@@ -75,6 +78,27 @@
       <button @click="loadMore" v-if="hasMore" class="load-more-btn">
         Загрузить ещё
       </button>
+
+
+
+      <div class="ai-widget" :class="{ expanded: isAIWidgetExpanded }">
+        <div class="ai-widget-head" @click="toggleAIWidget">Задать вопрос ИИ</div>
+  
+        <div class="ai-widget-content">
+          <p class="ai-widget-info">Задайте вопрос по непонятной вам теме, и искусственный интеллект объяснит вам её.</p>
+          
+          <!-- Conditional Loading and Response -->
+          <p v-if="isAILoading">Загрузка...</p>
+          <p v-else-if="aiResponse">{{ aiResponse }}</p>
+
+          <label>
+            <input type="text" placeholder="Введите ваш вопрос..." v-model="aiQuestion">
+            <button @click="askAI" :disabled="isAILoading">></button>
+          </label>
+          
+        </div>
+      </div>
+
 
     </div>
 

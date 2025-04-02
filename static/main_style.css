@@ -68,7 +68,8 @@ body{
     margin-top: 10px;
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: start;
+    /*flex-wrap: wrap;*/
     background-color: rgba(243, 243, 243, 0.906);
     /*background-color: rgba(95, 151, 214, 0.815);*/
     padding: 10px;
@@ -80,18 +81,40 @@ body{
     width: 100%;
     display: flex;
     justify-content: space-around;
+    flex-wrap: wrap;
+    
 }
 .categories a{
+    margin: 0 10px;
     text-decoration: none;
+
     font-size: 1.2vw;
     font-family: Arial, Helvetica, sans-serif;
     font-weight: 500;
     color: rgb(32, 35, 37);
+    position: relative;
+    overflow: hidden;
 }
 .categories .active{
     color: rgb(144, 144, 144);
     text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.055);
     cursor: default;
+}
+.nav a::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;     
+    width: 0;        
+    height: 2px;
+    background-color: rgb(144, 144, 144);
+    transform: translateX(-50%); 
+    transition: width 0.2s ease-in-out;
+}
+
+.nav a:hover::after,
+.categories .active::after {
+    width: 100%; 
 }
 .categories a:hover{
     color: rgb(144, 144, 144);
@@ -108,6 +131,15 @@ body{
     border: none;
     border-top: 1px solid rgba(69, 78, 82, 1);
 }
+
+.message-to-AI{
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    bottom: 0;
+    right: 10%;
+}
+
 /*подвал*/
 .footer{
     background-color: rgba(112, 124, 130, 1);
@@ -135,12 +167,12 @@ body{
 .burger-button {
     background: none;
     border: none;
-    font-size: 1.5rem; /* Adjusted size */
+    font-size: 1.5rem; 
     cursor: pointer;
-    margin-left: auto; /* Push to the right */
-    padding: 10px; /* Increased padding */
+    margin-left: auto;
+    padding: 10px; 
     display: none;
-    color: #333; /* Match text color */
+    color: #333; 
 }
 
 @media(max-width: 1390px){
@@ -166,20 +198,20 @@ body{
         transform: translateY(-100%);
         opacity: 0;
         visibility: hidden;
-        transition: all 0.3s ease; /* Add transition here too for smooth hiding */
+        transition: all 0.3s ease; 
     }
 
     .nav a {
         margin: 5px 0;
         display: block;
         text-align: center;
-        padding: 12px 0; /* Increased padding */
-        border-bottom: 1px solid #eee;
-        font-size: 1.2rem; /* Slightly increase font size for better readability */
+        padding: 12px 0; 
+        /*border-bottom: 1px solid #eee;*/
+        font-size: 1.2rem;
     }
 
     .burger-button {
-        display: block; /* Visible on mobile */
+        display: block;
     }
     .nav.show {
         transform: translateY(0);

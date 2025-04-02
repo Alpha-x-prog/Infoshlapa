@@ -7,6 +7,8 @@ import (
 	"log"
 	"net/http"
 	"newsAPI/db" // Замените на актуальный путь к пакету db
+	"newsAPI/gemini"
+	_ "newsAPI/gemini"
 	"newsAPI/parser"
 	_ "newsAPI/parser"
 	"strconv"
@@ -47,6 +49,11 @@ func main() {
 
 	r.GET("/news", func(c *gin.Context) {
 		getNews(c, database)
+	})
+
+	//помощник
+	r.POST("/ask", func(c *gin.Context) {
+		geminiASK(c)
 	})
 
 	r.Run(":8080")
@@ -139,4 +146,28 @@ func getNews(c *gin.Context, database *sql.DB) {
 
 	// Отправляем ответ с данными
 	c.JSON(http.StatusOK, news)
+}
+
+type Request struct {
+	Prompt string `json:"prompt"`
+}
+
+type Response struct {
+	Content string `json:"content"`
+}
+
+func geminiASK(c *gin.Context) {
+	var req Request
+
+	// Декодируем JSON из тела запроса в структуру Request
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Ошибка декодирования запроса"})
+		return
+	}
+	userQuery := req.Prompt
+	// Получаем ответ от функции geminiResponse
+
+	responseContent := gemini.GeminiResponse("Напиши кратко ответ на вопрос: " + userQuery)
+	// Отправляем JSON-ответ с полученным ответом
+	c.JSON(http.StatusOK, Response{Content: responseContent})
 }
