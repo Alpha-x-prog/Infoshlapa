@@ -34,7 +34,7 @@ body{
     z-index: 0;
 }
 .logo-container{
-    margin-left: 20px;
+    margin-left: 40px;
     display: flex;
     align-items: center;
     user-select: none;
@@ -83,7 +83,7 @@ body{
 }
 .categories a{
     text-decoration: none;
-    font-size: 20pt;
+    font-size: 1.2vw;
     font-family: Arial, Helvetica, sans-serif;
     font-weight: 500;
     color: rgb(32, 35, 37);
@@ -132,4 +132,68 @@ body{
     color: aliceblue;
 }
 
+.burger-button {
+    background: none;
+    border: none;
+    font-size: 1.5rem; /* Adjusted size */
+    cursor: pointer;
+    margin-left: auto; /* Push to the right */
+    padding: 10px; /* Increased padding */
+    display: none;
+    color: #333; /* Match text color */
+}
+
+@media(max-width: 1390px){
+    .categories a{
+        font-size: 1.vw;
+    }
+}
+@media (max-width: 700px) {
+    .categories {
+        flex-wrap: wrap;
+    }
+    
+    .nav {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        flex-direction: column;
+        width: 100%;
+        background-color: #fff;
+        padding: 10px;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        z-index: 10;
+        transform: translateY(-100%);
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease; /* Add transition here too for smooth hiding */
+    }
+
+    .nav a {
+        margin: 5px 0;
+        display: block;
+        text-align: center;
+        padding: 12px 0; /* Increased padding */
+        border-bottom: 1px solid #eee;
+        font-size: 1.2rem; /* Slightly increase font size for better readability */
+    }
+
+    .burger-button {
+        display: block; /* Visible on mobile */
+    }
+    .nav.show {
+        transform: translateY(0);
+        opacity: 1;
+        visibility: visible;
+    }
+    .category-link{
+        font-size: 1rem !important;
+    }
+    .date{
+        font-size: 0.9rem;
+    }
+    .logo-container span{
+        font-size: 19pt;
+    }
+}
 

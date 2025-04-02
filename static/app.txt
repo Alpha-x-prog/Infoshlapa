@@ -1,4 +1,4 @@
-const { createApp, ref, onMounted, onBeforeUnmount } = Vue
+const { createApp } = Vue;
 
 createApp({
     data() {
@@ -8,9 +8,7 @@ createApp({
             currentDate: new Date(),
             offset: 0,
             limit: 15,
-            hasMore: true,
-            isMobile: false, // Add isMobile to data
-            menuVisible: false,
+            hasMore: true
         };
     },
     computed: {
@@ -66,6 +64,15 @@ createApp({
             }
         }
     },
+    mounted() {
+        this.fetchNews();
+        this.intervalId = setInterval(() => {
+            this.currentDate = new Date();
+        }, 60000);
+    },
+    beforeUnmount() {
+        clearInterval(this.intervalId);
+    },
     methods: {
         setCategory(tags) {
             this.currentCategory = tags;
@@ -83,24 +90,6 @@ createApp({
         },
         loadMore() {
             this.fetchNews();
-        },
-        checkScreenSize() {
-          this.isMobile = window.innerWidth <= 700;
-        },
-        toggleMenu() {
-          this.menuVisible = !this.menuVisible;
-        },
-    },
-    mounted() {
-      this.fetchNews();
-      this.intervalId = setInterval(() => {
-        this.currentDate = new Date();
-      }, 60000);
-      this.checkScreenSize(); // Call on mount
-      window.addEventListener('resize', this.checkScreenSize); // And on resize
-    },
-    beforeUnmount() {
-        clearInterval(this.intervalId);
-        window.removeEventListener('resize', this.checkScreenSize);
-    },
+        }
+    }
 }).mount('#app');
