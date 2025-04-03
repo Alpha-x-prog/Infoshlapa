@@ -177,7 +177,7 @@ body{
 
 @media(max-width: 1390px){
     .categories a{
-        font-size: 1.vw;
+        font-size: 1vw;
     }
 }
 @media (max-width: 700px) {

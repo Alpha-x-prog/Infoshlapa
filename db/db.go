@@ -3,6 +3,9 @@ package db
 import (
 	"database/sql"
 	_ "github.com/mattn/go-sqlite3"
+	"newsAPI/collyan"
+	"newsAPI/gemini"
+	_ "newsAPI/gemini"
 	"strings"
 	"time"
 )
@@ -66,6 +69,10 @@ func InitDB() (*sql.DB, error) {
 
 // Сохранение новости в БД
 func SaveToDB(db *sql.DB, article NewsArticle) error {
+	if article.Description == "" {
+		article.Description = collyan.ScrapperCollyan(article.Link)
+		article.Description = gemini.GeminiResponse("Сделай краткое описание в 2-3 предолжения: " + article.Description)
+	}
 	_, err := db.Exec(
 		`INSERT OR IGNORE INTO news (article_id, title, link, keywords, creator, video_url, description, content, pub_date, image_url, source_id, source_name, source_url, language, country, category, sentiment)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
