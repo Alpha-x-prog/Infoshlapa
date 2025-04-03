@@ -32,7 +32,7 @@ func main() {
 	}
 	defer database.Close()
 
-	apiURL := "https://newsdata.io/api/1/latest?apikey=%s&category=top&language=ru&country=ru"
+	apiURL := "https://newsdata.io/api/1/latest?apikey=%s&category=politics&language=ru&country=ru"
 	// Запуск парсинга и сохранения новостей в БД
 	err = parser.ParseAndSaveNews(apiURL, apiKey, database)
 	if err != nil {
