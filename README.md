@@ -1,2 +1,2 @@
 # Infoshlapa
-first and the last or not project
+тут должно было быть описание проекта, но его нет.
