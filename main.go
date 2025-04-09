@@ -13,6 +13,7 @@ import (
 	_ "newsAPI/parser"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func main() {
@@ -32,12 +33,13 @@ func main() {
 	}
 	defer database.Close()
 
-	apiURL := "https://newsdata.io/api/1/latest?apikey=%s&category=politics&language=ru&country=ru"
-	// Запуск парсинга и сохранения новостей в БД
-	err = parser.ParseAndSaveNews(apiURL, apiKey, database)
-	if err != nil {
-		fmt.Println("Ошибка при парсинге и сохранении новостей:", err)
+	categories := []string{"top", "health", "politics", "sports", "business", "science", "food"}
+
+	//// Запускаем горутину для каждого типа категории
+	for _, category := range categories {
+		go startNewsFetcher(apiKey, category, database)
 	}
+
 	r := gin.Default()
 
 	// Раздача статических файлов
@@ -59,17 +61,34 @@ func main() {
 	r.Run(":8080")
 }
 
+type NewsArticle struct {
+	ArticleID   string   `json:"article_id"`
+	Title       string   `json:"title"`
+	Link        string   `json:"link"`
+	Keywords    []string `json:"keywords"`
+	Creator     []string `json:"creator"`
+	VideoURL    string   `json:"video_url"`
+	Description string   `json:"description"`
+	Content     string   `json:"content"`
+	PubDate     string   `json:"publishedAt"`
+	ImageURL    string   `json:"urlToImage"`
+	SourceID    string   `json:"source_id"`
+	SourceName  string   `json:"source_name"`
+	SourceURL   string   `json:"url"`
+	Language    string   `json:"language"`
+	Country     string   `json:"country"`
+	Tags        string   `json:"tags"`
+	Sentiment   string   `json:"sentiment"`
+}
+
 func getNews(c *gin.Context, database *sql.DB) {
-	// Получаем параметры запроса
 	limit := 15
 	offset, _ := strconv.Atoi(c.DefaultQuery("offset", "0"))
-	category := c.DefaultQuery("category", "") // Категория из запроса
+	category := c.DefaultQuery("category", "")
 
-	// Список валидных категорий
 	validCategories := []string{"top", "sports", "technology", "business", "science", "entertainment", "health", "world", "politics", "environment", "food"}
+	validCategory := false
 
-	// Проверка валидности категории
-	var validCategory bool
 	for _, valid := range validCategories {
 		if category == valid {
 			validCategory = true
@@ -77,22 +96,18 @@ func getNews(c *gin.Context, database *sql.DB) {
 		}
 	}
 
-	// Логирование параметров запроса
 	log.Printf("Получение новостей с лимитом %d, смещением %d, категорией: %s", limit, offset, category)
 
 	var rows *sql.Rows
 	var err error
 
-	// Формируем SQL-запрос в зависимости от переданной категории
 	if validCategory {
-		// Если категория валидна, фильтруем по ней
 		rows, err = database.Query(
 			"SELECT article_id, title, link, keywords, creator, video_url, description, content, pub_date, image_url, source_id, source_name, source_url, language, country, category, sentiment "+
 				"FROM news WHERE category LIKE ? ORDER BY pub_date DESC LIMIT ? OFFSET ?",
 			"%"+category+"%", limit, offset,
 		)
 	} else {
-		// Если категория не передана или не валидна, выводим все новости
 		rows, err = database.Query(
 			"SELECT article_id, title, link, keywords, creator, video_url, description, content, pub_date, image_url, source_id, source_name, source_url, language, country, category, sentiment "+
 				"FROM news ORDER BY pub_date DESC LIMIT ? OFFSET ?",
@@ -100,7 +115,6 @@ func getNews(c *gin.Context, database *sql.DB) {
 		)
 	}
 
-	// Обработка ошибок
 	if err != nil {
 		log.Printf("Ошибка при выполнении запроса: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Не удалось выполнить запрос"})
@@ -108,11 +122,10 @@ func getNews(c *gin.Context, database *sql.DB) {
 	}
 	defer rows.Close()
 
-	var news []db.NewsArticle
+	var news []NewsArticle
 
-	// Перебираем строки результата запроса
 	for rows.Next() {
-		var n db.NewsArticle
+		var n NewsArticle
 		var keywordsStr, creatorStr, countryStr, categoryStr string
 
 		err := rows.Scan(
@@ -120,31 +133,27 @@ func getNews(c *gin.Context, database *sql.DB) {
 			&n.Description, &n.Content, &n.PubDate, &n.ImageURL, &n.SourceID, &n.SourceName, &n.SourceURL,
 			&n.Language, &countryStr, &categoryStr, &n.Sentiment,
 		)
-
 		if err != nil {
 			log.Printf("Ошибка при сканировании строки: %v", err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при обработке данных"})
 			return
 		}
 
-		// Преобразуем строки с разделителями в срезы
+		// Разбиваем строки с разделителями в срезы
 		n.Keywords = strings.Split(keywordsStr, ",")
 		n.Creator = strings.Split(creatorStr, ",")
-		n.Country = strings.Split(countryStr, ",")
-		n.Category = strings.Split(categoryStr, ",")
+		n.Country = strings.TrimSpace(strings.Split(countryStr, ",")[0])
+		n.Tags = strings.TrimSpace(strings.Split(categoryStr, ",")[0])
 
-		// Добавляем новость в список
 		news = append(news, n)
 	}
 
-	// Проверка на ошибки после завершения перебора строк
 	if err := rows.Err(); err != nil {
 		log.Printf("Ошибка при обработке строк результата: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при обработке данных"})
 		return
 	}
 
-	// Отправляем ответ с данными
 	c.JSON(http.StatusOK, news)
 }
 
@@ -170,4 +179,20 @@ func geminiASK(c *gin.Context) {
 	responseContent := gemini.GeminiResponse("Напиши кратко ответ на вопрос: " + userQuery)
 	// Отправляем JSON-ответ с полученным ответом
 	c.JSON(http.StatusOK, Response{Content: responseContent})
+}
+
+func startNewsFetcher(apiKey, category string, database *sql.DB) {
+	ticker := time.NewTicker(10 * time.Minute)
+	defer ticker.Stop()
+
+	apiURL := fmt.Sprintf("https://newsdata.io/api/1/latest?apikey=%%s&category=%s&language=ru&country=ru", category)
+
+	for {
+		log.Printf("Запуск парсинга для категории: %s", category)
+		err := parser.ParseAndSaveNews(apiURL, apiKey, database)
+		if err != nil {
+			log.Printf("Ошибка при парсинге новостей (%s): %v", category, err)
+		}
+		<-ticker.C
+	}
 }

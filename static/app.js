@@ -25,8 +25,8 @@ createApp({
   computed: {
     filteredNews() {
       return this.currentCategory === 'all' ?
-          this.newsData :
-          this.newsData.filter(newsItem => newsItem.tags === this.currentCategory);
+        this.newsData :
+        this.newsData.filter(newsItem => newsItem.tags === this.currentCategory);
     },
     formattedDateTime() {
       const months = [
@@ -48,7 +48,7 @@ createApp({
         <div class="news-card" @click="toggleContent">
           <div class="news-image-container" :class="{ hidden: showText }">
             <img :src="news.urlToImage" alt="News Image" class="news-image">
-            <!--<span class="news-category">{{ news.tags }}</span>-->
+            <span class="news-category">{{ news.tags }}</span>
           </div>
           <div class="news-content">
             <h3 class="news-title">{{ news.title }}</h3>
@@ -79,8 +79,21 @@ createApp({
     setCategory(tags) {
       this.currentCategory = tags;
     },
+    fetchNewsAll() {
+      axios.get(`/news?offset=15`)
+        .then(response => {
+          if (response.data.length < this.limit) {
+            this.hasMore = false;
+          }
+          this.newsData = [...this.newsData, ...response.data];
+        })
+        .catch(err => console.error(err));
+    },
     fetchNews() {
-      axios.get(`/news?offset=${this.offset}`)
+      let url = `/news?offset=${this.offset}`;
+      url += `&category=${this.currentCategory}`;
+
+      axios.get(url)
           .then(response => {
             if (response.data.length < this.limit) {
               this.hasMore = false;
@@ -119,7 +132,7 @@ createApp({
     }
   },
   mounted() {
-    this.fetchNews();
+    this.fetchNewsAll();
     this.intervalId = setInterval(() => {
       this.currentDate = new Date();
     }, 60000);

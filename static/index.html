@@ -64,10 +64,10 @@
            @click.prevent="setCategory('business')" @click="toggleMenu">бизнес</a>
 
         <a class="category-link" :class="{ active: currentCategory === 'science' }" href="#"
-           @click.prevent="setCategory('science')" @click="toggleMenu">наука</a>
+           @click.prevent="setCategory('science')" @click="loadMore" @click="toggleMenu">наука</a>
 
         <a class="category-link" :class="{ active: currentCategory === 'food' }" href="#"
-           @click.prevent="setCategory('food')" @click="toggleMenu">еда</a>
+           @click.prevent="setCategory('food')" @click="loadMore" @click="toggleMenu">еда</a>
 
 
       </nav>
