@@ -7,10 +7,10 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"os"
 )
 
 const apiURLGemini = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
-const apiKeyGemini = "AIzaSyAOdy--rJXYEsXy7Pvdh0YYhNEsBpSiQFg" // Замени на свой API-ключ
 
 // Структура запроса
 type RequestBody struct {
@@ -30,12 +30,29 @@ type Response struct {
 			} `json:"parts"`
 		} `json:"content"`
 	} `json:"candidates"`
+	Error struct {
+		Code    int    `json:"code"`
+		Message string `json:"message"`
+	} `json:"error"`
 }
 
 func GeminiResponse(question string) string {
-	// Прокси-сервер с логином и паролем
-	proxyURL, _ := url.Parse("http://user204274:wdumt6@193.37.197.158:5167")
-	transport := &http.Transport{Proxy: http.ProxyURL(proxyURL)}
+	// Получаем API ключ из переменных окружения
+	apiKeyGemini := os.Getenv("GEMINI_API_KEY")
+	if apiKeyGemini == "" {
+		fmt.Println("GEMINI_API_KEY не найден в переменных окружения")
+		return "error"
+	}
+
+	// Получаем настройки прокси из переменных окружения
+	proxyURL := os.Getenv("PROXY_URL")
+	proxyUser := os.Getenv("PROXY_USER")
+	proxyPass := os.Getenv("PROXY_PASSWORD")
+
+	// Формируем URL прокси с учетными данными
+	proxyURLWithAuth := fmt.Sprintf("http://%s:%s@%s", proxyUser, proxyPass, proxyURL)
+	proxy, _ := url.Parse(proxyURLWithAuth)
+	transport := &http.Transport{Proxy: http.ProxyURL(proxy)}
 
 	// Создаём клиента с прокси
 	client := &http.Client{Transport: transport}
@@ -52,7 +69,7 @@ func GeminiResponse(question string) string {
 					Text string `json:"text"`
 				}{
 					{Text: question},
-				}, //https://gizmodo.com/musk-and-trumps-fort-knox-trip-is-about-bitcoin-2000569420
+				},
 			},
 		},
 	}
@@ -72,6 +89,8 @@ func GeminiResponse(question string) string {
 
 	// Читаем ответ
 	body, _ := ioutil.ReadAll(resp.Body)
+	fmt.Println("Ответ от API:", string(body))
+
 	var result Response
 	err = json.Unmarshal(body, &result)
 	if err != nil {
@@ -79,12 +98,17 @@ func GeminiResponse(question string) string {
 		return "error"
 	}
 
+	// Проверяем наличие ошибки в ответе
+	if result.Error.Code != 0 {
+		fmt.Printf("Ошибка API: %s (код: %d)\n", result.Error.Message, result.Error.Code)
+		return "error"
+	}
+
 	// Достаем текст
-	//fmt.Println(string(body))
 	if len(result.Candidates) > 0 && len(result.Candidates[0].Content.Parts) > 0 {
 		return result.Candidates[0].Content.Parts[0].Text
 	} else {
 		fmt.Println("Нет данных в ответе")
+		return "error"
 	}
-	return "error"
 }

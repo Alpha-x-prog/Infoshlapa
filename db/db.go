@@ -2,12 +2,13 @@ package db
 
 import (
 	"database/sql"
-	_ "github.com/mattn/go-sqlite3"
 	"newsAPI/collyan"
 	"newsAPI/gemini"
 	_ "newsAPI/gemini"
 	"strings"
 	"time"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 const dbFile = "news.db"
