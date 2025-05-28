@@ -1,0 +1,14 @@
+# Telegram API credentials
+API_ID = 'your_api_id'  # Замените на ваш API ID
+API_HASH = 'your_api_hash'  # Замените на ваш API Hash
+
+# Session configuration
+SESSION_NAME = 'news_bot_session'
+
+# Channel settings
+MAX_MESSAGES_PER_CHANNEL = 100
+FETCH_INTERVAL_MINUTES = 15
+
+# Logging
+LOG_LEVEL = 'INFO'
+LOG_FILE = 'telegram_bot.log' 

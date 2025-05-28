@@ -1,37 +1,76 @@
-# Telegram Channel Monitor
+# Telegram News Bot
 
-Этот скрипт позволяет мониторить сообщения из Telegram каналов и сохранять их в базу данных.
+## Установка и настройка
 
-## Установка
-
-1. Установите зависимости:
+1. Установите Python зависимости:
 ```bash
+cd scripts
 pip install -r requirements.txt
 ```
 
-2. Создайте файл `.env` в директории `telegram` со следующими переменными:
-```
-TELEGRAM_API_ID=ваш_api_id
-TELEGRAM_API_HASH=ваш_api_hash
-TELEGRAM_PHONE=ваш_номер_телефона
-TELEGRAM_PASSWORD=ваш_пароль_2fa
-```
-
-Для получения API ID и API Hash:
-1. Перейдите на https://my.telegram.org
-2. Войдите в свой аккаунт
-3. Перейдите в "API development tools"
-4. Создайте новое приложение
-5. Скопируйте API ID и API Hash
-
-## Использование
-
-1. Запустите скрипт:
+2. Настройте конфигурацию:
 ```bash
-python telegram_handler.py
+# Скопируйте пример конфигурации
+cp config.py.example config.py
+
+# Отредактируйте config.py и укажите свои API ключи
+# API_ID и API_HASH можно получить на https://my.telegram.org
 ```
 
-2. При первом запуске вам нужно будет авторизоваться в Telegram. Следуйте инструкциям в консоли.
+3. Первый запуск Python скриптов:
+```bash
+# Добавление канала
+python scripts/add_channel.py "https://t.me/your_channel"
+
+# Тестовый запуск получения сообщений
+python scripts/fetch_messages.py
+```
+
+## Запуск через Go
+
+1. В основном приложении импортируйте пакет telegram:
+```go
+import "your_project/telegram"
+```
+
+2. Инициализируйте фоновый процесс получения сообщений:
+```go
+func main() {
+    // Запуск фонового процесса получения сообщений
+    telegram.StartMessageFetcher()
+    
+    // ... остальной код ...
+}
+```
+
+3. Для добавления нового канала:
+```go
+err := telegram.AddChannel("https://t.me/your_channel")
+if err != nil {
+    // обработка ошибки
+}
+```
+
+## Структура проекта
+
+```
+telegram/
+├── scripts/
+│   ├── add_channel.py      # Скрипт добавления канала
+│   ├── fetch_messages.py   # Скрипт получения сообщений
+│   ├── config.py          # Конфигурация (не в репозитории)
+│   ├── config.py.example  # Пример конфигурации
+│   └── requirements.txt   # Python зависимости
+├── channel_adder.go       # Go обертка для добавления каналов
+└── message_fetcher.go     # Go обертка для получения сообщений
+```
+
+## Важные замечания
+
+1. При первом запуске Python скриптов потребуется авторизация в Telegram
+2. Файл сессии (`*.session`) создастся автоматически
+3. Логи сохраняются в `telegram_bot.log`
+4. Убедитесь, что Python установлен в системе и доступен в PATH
 
 ## Функциональность
 

@@ -1,10 +1,29 @@
-# Environment variables
-.env
-.env.*
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
 
-# IDE files
+# Environment
+.env
+*.env
+
+# Configuration
+telegram/scripts/config.py
+
+# Logs
+*.log
+
+# Session files
+*.session
+*.session-journal
+
+# IDE
 .idea/
 .vscode/
+
+# Database
+*.db
+*.sqlite3
 
 # Binary files
 *.exe
@@ -12,16 +31,6 @@
 *.dll
 *.so
 *.dylib
-
-# Database files
-*.db
-*.sqlite
-
-# Log files
-*.log
-
-# Dependencies
-/vendor/
 
 # OS generated files
 .DS_Store

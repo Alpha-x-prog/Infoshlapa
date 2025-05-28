@@ -40,7 +40,8 @@ func InitDB() (*sql.DB, error) {
 		return nil, err
 	}
 
-	createTable := `CREATE TABLE IF NOT EXISTS news (
+	// Создаем таблицу новостей
+	createNewsTable := `CREATE TABLE IF NOT EXISTS news (
 		article_id TEXT PRIMARY KEY,
 		title TEXT,
 		link TEXT,
@@ -60,7 +61,34 @@ func InitDB() (*sql.DB, error) {
 		sentiment TEXT
 	);`
 
-	_, err = db.Exec(createTable)
+	// Создаем таблицу пользователей
+	createUsersTable := `CREATE TABLE IF NOT EXISTS users (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		email TEXT UNIQUE NOT NULL,
+		password TEXT NOT NULL,
+		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+	);`
+
+	// Создаем таблицу для истории запросов к AI
+	createConversationsTable := `CREATE TABLE IF NOT EXISTS conversations (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		question TEXT NOT NULL,
+		answer TEXT NOT NULL,
+		timestamp INTEGER NOT NULL
+	);`
+
+	// Выполняем создание таблиц
+	_, err = db.Exec(createNewsTable)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = db.Exec(createUsersTable)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = db.Exec(createConversationsTable)
 	if err != nil {
 		return nil, err
 	}
