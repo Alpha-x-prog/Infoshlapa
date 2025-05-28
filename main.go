@@ -58,12 +58,8 @@ func main() {
 	r.POST("/ask", api.GeminiAsk)
 
 	// Public routes
-	r.POST("/register", func(c *gin.Context) {
-		api.RegisterHandler(c, database)
-	})
-
-	r.POST("/login", func(c *gin.Context) {
-		api.LoginHandler(c, database)
+	r.POST("/profile", func(c *gin.Context) {
+		api.ProfileAuthHandler(c, database)
 	})
 
 	// Protected routes (require JWT)

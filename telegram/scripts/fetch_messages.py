@@ -93,7 +93,7 @@ async def fetch_messages():
                 messages = await client.get_messages(
                     channel,
                     min_id=last_message_id,  # Получаем только сообщения новее last_message_id
-                    limit=100
+                    limit=10
                 )
                 
                 if messages:
