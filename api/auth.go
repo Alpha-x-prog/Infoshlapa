@@ -101,11 +101,59 @@ func RegisterHandler(c *gin.Context, db *sql.DB) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"token": token,
+		"success": true,
+		"token":   token,
 		"user": gin.H{
 			"id":    userID,
 			"email": req.Email,
 		},
+		"message": "Пользователь успешно зарегистрирован",
+	})
+}
+
+// LoginHandler обрабатывает вход пользователей
+func LoginHandler(c *gin.Context, db *sql.DB) {
+	var req LoginRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Неверный формат данных"})
+		return
+	}
+
+	// Проверяем существование пользователя
+	var userID int
+	var hashedPassword string
+	err := db.QueryRow("SELECT id, password FROM users WHERE email = ?", req.Email).Scan(&userID, &hashedPassword)
+
+	if err == sql.ErrNoRows {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Пользователь не найден"})
+		return
+	} else if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при проверке пользователя"})
+		return
+	}
+
+	// Проверяем пароль
+	err = bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(req.Password))
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Неверный пароль"})
+		return
+	}
+
+	// Генерируем JWT токен
+	token, err := generateJWT(userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при генерации токена"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"token":   token,
+		"user": gin.H{
+			"id":    userID,
+			"email": req.Email,
+		},
+		"message": "Успешная авторизация",
 	})
 }
 

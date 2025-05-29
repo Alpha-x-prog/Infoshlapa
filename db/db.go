@@ -77,6 +77,29 @@ func InitDB() (*sql.DB, error) {
 		timestamp INTEGER NOT NULL
 	);`
 
+	// Создаем таблицу для Telegram каналов пользователей
+	createUserChannelsTable := `CREATE TABLE IF NOT EXISTS user_channels (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		user_id INTEGER NOT NULL,
+		channel_url TEXT NOT NULL,
+		channel_username TEXT,
+		channel_name TEXT,
+		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+		FOREIGN KEY (user_id) REFERENCES users(id),
+		UNIQUE(user_id, channel_url)
+	);`
+
+	// Создаем таблицу для информации о каналах Telegram
+	createTelegramChannelsTable := `CREATE TABLE IF NOT EXISTS telegram_channels (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		channel_id INTEGER UNIQUE,
+		channel_username TEXT UNIQUE NOT NULL,
+		channel_title TEXT,
+		last_message_id INTEGER DEFAULT 0,
+		added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+		is_active BOOLEAN DEFAULT TRUE
+	);`
+
 	// Выполняем создание таблиц
 	_, err = db.Exec(createNewsTable)
 	if err != nil {
@@ -89,6 +112,16 @@ func InitDB() (*sql.DB, error) {
 	}
 
 	_, err = db.Exec(createConversationsTable)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = db.Exec(createUserChannelsTable)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = db.Exec(createTelegramChannelsTable)
 	if err != nil {
 		return nil, err
 	}
@@ -184,4 +217,59 @@ func GetUserBookmarks(db *sql.DB, userID int) ([]NewsArticle, error) {
 	}
 
 	return bookmarks, nil
+}
+
+// AddUserChannel добавляет Telegram канал для пользователя
+func AddUserChannel(db *sql.DB, userID int, channelURL, channelUsername, channelName string) error {
+	_, err := db.Exec(
+		`INSERT OR IGNORE INTO user_channels (user_id, channel_url, channel_username, channel_name) VALUES (?, ?, ?, ?)`,
+		userID, channelURL, channelUsername, channelName,
+	)
+	return err
+}
+
+// RemoveUserChannel удаляет Telegram канал пользователя
+func RemoveUserChannel(db *sql.DB, userID int, channelURL string) error {
+	_, err := db.Exec(
+		`DELETE FROM user_channels WHERE user_id = ? AND channel_url = ?`,
+		userID, channelURL,
+	)
+	return err
+}
+
+// GetUserChannels получает все Telegram каналы пользователя
+func GetUserChannels(db *sql.DB, userID int) ([]map[string]string, error) {
+	rows, err := db.Query(`
+		SELECT channel_url, channel_name, created_at
+		FROM user_channels
+		WHERE user_id = ?
+		ORDER BY created_at DESC`,
+		userID,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var channels []map[string]string
+	for rows.Next() {
+		channel := make(map[string]string)
+		var url, name, createdAt string
+		err := rows.Scan(&url, &name, &createdAt)
+		if err != nil {
+			return nil, err
+		}
+		channel["url"] = url
+		channel["name"] = name
+		channel["created_at"] = createdAt
+		channels = append(channels, channel)
+	}
+
+	return channels, nil
+}
+
+// DeleteAllUsers удаляет всех пользователей из базы данных
+func DeleteAllUsers(db *sql.DB) error {
+	_, err := db.Exec("DELETE FROM users")
+	return err
 }

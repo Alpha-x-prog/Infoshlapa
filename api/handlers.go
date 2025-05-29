@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"newsAPI/db"
 	"newsAPI/gemini"
+	"newsAPI/telegram"
 	"strconv"
 	"strings"
 
@@ -203,4 +204,86 @@ func GetBookmarks(c *gin.Context, database *sql.DB) {
 	}
 
 	c.JSON(http.StatusOK, bookmarks)
+}
+
+// AddChannel добавляет новый канал для пользователя
+func AddChannel(c *gin.Context, db *sql.DB) {
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(401, gin.H{"success": false, "message": "Unauthorized"})
+		return
+	}
+
+	var req telegram.ChannelRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(400, gin.H{"success": false, "message": "Invalid request format"})
+		return
+	}
+
+	if err := telegram.AddChannel(db, userID.(int), req); err != nil {
+		c.JSON(500, gin.H{"success": false, "message": "Failed to add channel"})
+		return
+	}
+
+	c.JSON(200, gin.H{"success": true, "message": "Channel added successfully"})
+}
+
+// RemoveChannel удаляет канал пользователя
+func RemoveChannel(c *gin.Context, db *sql.DB) {
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(401, gin.H{"success": false, "message": "Unauthorized"})
+		return
+	}
+
+	channelURL := c.Query("channel_url")
+	if channelURL == "" {
+		c.JSON(400, gin.H{"success": false, "message": "Channel URL is required"})
+		return
+	}
+
+	if err := telegram.RemoveChannel(db, userID.(int), channelURL); err != nil {
+		c.JSON(500, gin.H{"success": false, "message": "Failed to remove channel"})
+		return
+	}
+
+	c.JSON(200, gin.H{"success": true, "message": "Channel removed successfully"})
+}
+
+// GetUserChannels получает все каналы пользователя
+func GetUserChannels(c *gin.Context, db *sql.DB) {
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(401, gin.H{"success": false, "message": "Unauthorized"})
+		return
+	}
+
+	channels, err := telegram.GetUserChannels(db, userID.(int))
+	if err != nil {
+		c.JSON(500, gin.H{"success": false, "message": "Failed to get channels"})
+		return
+	}
+
+	c.JSON(200, gin.H{"success": true, "channels": channels})
+}
+
+// DeleteAllUsers удаляет всех пользователей из базы данных
+func DeleteAllUsers(c *gin.Context, db *sql.DB) {
+	// Проверяем, что пользователь авторизован
+	_, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(401, gin.H{"success": false, "message": "Unauthorized"})
+		return
+	}
+
+	// Здесь можно добавить дополнительную проверку на права администратора
+	// Например, проверка email или специальной роли в базе данных
+
+	_, err := db.Exec("DELETE FROM users")
+	if err != nil {
+		c.JSON(500, gin.H{"success": false, "message": "Failed to delete users"})
+		return
+	}
+
+	c.JSON(200, gin.H{"success": true, "message": "All users have been deleted"})
 }

@@ -35,6 +35,15 @@ func main() {
 
 		apiGroup.POST("/ask", api.GeminiAsk)
 
+		// Auth routes
+		apiGroup.POST("/register", func(c *gin.Context) {
+			api.RegisterHandler(c, database)
+		})
+
+		apiGroup.POST("/login", func(c *gin.Context) {
+			api.LoginHandler(c, database)
+		})
+
 		// Public routes
 		apiGroup.POST("/profile", func(c *gin.Context) {
 			api.ProfileAuthHandler(c, database)
@@ -64,6 +73,24 @@ func main() {
 
 			protected.GET("/bookmarks", func(c *gin.Context) {
 				api.GetBookmarks(c, database)
+			})
+
+			// Channel routes
+			protected.POST("/channels", func(c *gin.Context) {
+				api.AddChannel(c, database)
+			})
+
+			protected.DELETE("/channels", func(c *gin.Context) {
+				api.RemoveChannel(c, database)
+			})
+
+			protected.GET("/channels", func(c *gin.Context) {
+				api.GetUserChannels(c, database)
+			})
+
+			// Admin routes
+			protected.DELETE("/users/all", func(c *gin.Context) {
+				api.DeleteAllUsers(c, database)
 			})
 		}
 	}
