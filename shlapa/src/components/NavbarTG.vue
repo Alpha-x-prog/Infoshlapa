@@ -1,9 +1,9 @@
 <template>
     <div class="navbar-container">
-        <nav>
-            <router-link to="/" class="island-moments-font">Инфоshlapa</router-link> 
+        <nav class="island-moments-font">
+            <router-link to="/" class="island-moments-font">Новости</router-link> 
+            <router-link to="/tgnews">Тг новости</router-link> 
             <router-link to="/profile">Профиль</router-link>
-            <router-link to="/tgnews">Tg новости</router-link>
         </nav>
 
         <b-nav pills>

@@ -1,30 +1,26 @@
 <template>
-    <div class="main-page">
-        <Header/>
 
-        <section class="main-container">
-            <!--<NavbarMain/>-->
-            <!--<TimeBar/>-->
-            <News/>
-            <AiWidget/>
-        </section>
-
-        <Footer/>
-    </div>
+    <Header/>
+    
+    <section class="main-container">
+        <NavbarProfile/>   
+        <BookmarksContent/>
+        <AiWidget/>
+    </section>
+    
+    <Footer/>
+        
 </template>
     
 <script setup>
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-
-import NavbarMain from "@/components/NavbarMain";
-import TimeBar from "@/components/TimeBar";
-import News from "@/components/News";
+import NavbarProfile from "@/components/NavbarProfile";
+import BookmarksContent from "@/components/BookmarksContent";
 import AiWidget from "@/components/AiWidget.vue";
-
 </script>
-
-<style>
+    
+<style scoped>
 .main-page {
     width: 100%;
 }
@@ -41,7 +37,3 @@ import AiWidget from "@/components/AiWidget.vue";
     align-items: center;
 }
 </style>
-
-
-
-

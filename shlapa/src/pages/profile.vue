@@ -19,7 +19,7 @@ import Footer from "@/components/Footer";
 import NavbarProfile from "@/components/NavbarProfile";
 import AiWidget from "@/components/AiWidget.vue";
 
-import ProfileContent from "@/components/ProfileContent.vue";
+import ProfileContent from "@/components/ProfileContentLogin.vue";
 </script>
 
 <style>

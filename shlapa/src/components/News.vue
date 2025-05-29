@@ -1,6 +1,7 @@
 <template>
     <div class="news-section">
-        <navbar @category-changed="setCategory" />
+        <NavbarMain @category-changed="setCategory" />
+        <TimeBar/>
         <div class="news-container">
             <div v-if="loading" class="loading">Loading...</div>
             <div v-if="error" class="error">&#128711; {{ error }}</div>
@@ -21,14 +22,16 @@
 
 <script>
 import axios from 'axios';
-import NewsCard from './NewsCard.vue';
-import Navbar from './Navbar.vue';
+import NewsCard from '@/components/NewsCard.vue';
+import Navbar from '@/components/Navbar.vue';
+import NavbarMain from '@/components/NavbarMain'
+import TimeBar from "@/components/TimeBar";
 
 export default {
     name: 'News',
     components: {
         NewsCard,
-        Navbar
+        NavbarMain
     },
     data() {
         return {
@@ -119,6 +122,10 @@ export default {
 
 .error { 
     color: #ac3a3a;
+    padding: 15px;
+    background:rgb(222, 150, 150);
+    border-radius: 10px;
+    border: 1px solid  #ac3a3a;
 }
 
 .load-more {
