@@ -78,7 +78,7 @@ export default {
                 this.newsData = [...this.newsData, ...newNews];
                 this.offset += this.limit;
             } catch (err) {
-                this.error = 'Failed to load news. Please try again later.';
+                this.error = 'Не удалось загрузить новости. Пожалуйста, попробуйте позже.';
                 console.error('Error fetching news:', err);
             } finally {
                 this.loading = false;

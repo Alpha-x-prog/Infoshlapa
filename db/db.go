@@ -2,6 +2,7 @@ package db
 
 import (
 	"database/sql"
+	"fmt"
 	"newsAPI/collyan"
 	"newsAPI/gemini"
 	_ "newsAPI/gemini"
@@ -131,6 +132,12 @@ func InitDB() (*sql.DB, error) {
 
 // Сохранение новости в БД
 func SaveToDB(db *sql.DB, article NewsArticle) error {
+	// Проверяем наличие изображения
+	if strings.TrimSpace(article.ImageURL) == "" {
+		fmt.Printf("Пропущена новость без изображения: %s\n", article.Title)
+		return nil
+	}
+
 	if article.Description == "" {
 		article.Description = collyan.ScrapperCollyan(article.Link)
 		article.Description = gemini.GeminiResponse("Сделай краткое описание в 2-3 предолжения: " + article.Description)

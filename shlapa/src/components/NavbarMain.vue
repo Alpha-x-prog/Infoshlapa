@@ -12,16 +12,16 @@
             toggle-class="nav-link-custom"
             right
             >
-            <b-dropdown-item :class="{ active: currentCategory === 'top' }" href="#"
-                @click.prevent="setCategory('top')">Все</b-dropdown-item>
+            <b-dropdown-item :class="{ active: currentCategory === 'all' }" href="#"
+                @click.prevent="setCategory('all')">Все</b-dropdown-item>
 
             <b-dropdown-divider></b-dropdown-divider>
 
             <b-dropdown-item :class="{ active: currentCategory === 'business' }" href="#"
                 @click.prevent="setCategory('business')">бизнес</b-dropdown-item>
 
-            <b-dropdown-item :class="{ active: currentCategory === 'entertainment' }" href="#"
-                @click.prevent="setCategory('entertainment')">развлечения</b-dropdown-item>
+            <b-dropdown-item :class="{ active: currentCategory === 'top' }" href="#"
+                @click.prevent="setCategory('top')">топ</b-dropdown-item>
 
             <b-dropdown-item :class="{ active: currentCategory === 'health' }" href="#"
                 @click.prevent="setCategory('health')">здоровье</b-dropdown-item>
@@ -44,7 +44,7 @@ export default {
     name: 'NavbarMain',
     data() {
         return {
-            currentCategory: 'top',
+            currentCategory: 'all',
         };
     },
     methods: {
