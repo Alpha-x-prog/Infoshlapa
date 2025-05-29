@@ -37,8 +37,8 @@ func AddChannel(dbConn *sql.DB, userID int, req ChannelRequest) error {
 
 	// Если канала нет в telegram_channels, добавляем его
 	if !exists {
-		_, err = dbConn.Exec("INSERT INTO telegram_channels (channel_username, channel_username, last_message_id, is_active) VALUES (?, ?, ?, ?)",
-			channelUsername, req.ChannelURL, 0, true)
+		_, err = dbConn.Exec("INSERT INTO telegram_channels (channel_username, channel_title, last_message_id, is_active) VALUES (?, ?, ?, ?)",
+			channelUsername, channelUsername, 0, true)
 		if err != nil {
 			log.Printf("Error adding channel to telegram_channels: %v", err)
 			return err

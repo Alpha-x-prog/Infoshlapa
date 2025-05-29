@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"log"
 	"net/http"
-	"newsAPI/db"
+	dbpkg "newsAPI/db"
 	"newsAPI/gemini"
 	"newsAPI/telegram"
 	"strconv"
@@ -151,7 +151,7 @@ func AddBookmark(c *gin.Context, database *sql.DB) {
 		return
 	}
 
-	err := db.AddBookmark(database, userID.(int), request.NewsID)
+	err := dbpkg.AddBookmark(database, userID.(int), request.NewsID)
 	if err != nil {
 		log.Printf("Error adding bookmark: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add bookmark"})
@@ -178,7 +178,7 @@ func RemoveBookmark(c *gin.Context, database *sql.DB) {
 		return
 	}
 
-	err := db.RemoveBookmark(database, userID.(int), request.NewsID)
+	err := dbpkg.RemoveBookmark(database, userID.(int), request.NewsID)
 	if err != nil {
 		log.Printf("Error removing bookmark: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to remove bookmark"})
@@ -196,7 +196,7 @@ func GetBookmarks(c *gin.Context, database *sql.DB) {
 		return
 	}
 
-	bookmarks, err := db.GetUserBookmarks(database, userID.(int))
+	bookmarks, err := dbpkg.GetUserBookmarks(database, userID.(int))
 	if err != nil {
 		log.Printf("Error getting bookmarks: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get bookmarks"})
@@ -286,4 +286,46 @@ func DeleteAllUsers(c *gin.Context, db *sql.DB) {
 	}
 
 	c.JSON(200, gin.H{"success": true, "message": "All users have been deleted"})
+}
+
+// GetUserChannelMessages получает все сообщения из каналов пользователя
+func GetUserChannelMessages(c *gin.Context, db *sql.DB) {
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(401, gin.H{"success": false, "message": "Unauthorized"})
+		return
+	}
+
+	messages, err := dbpkg.GetUserChannelMessages(db, userID.(int))
+	if err != nil {
+		log.Printf("Error getting channel messages: %v", err)
+		c.JSON(500, gin.H{"success": false, "message": "Failed to get messages"})
+		return
+	}
+
+	c.JSON(200, gin.H{"success": true, "messages": messages})
+}
+
+// GetUserChannelMessagesByChannel получает сообщения из конкретного канала пользователя
+func GetUserChannelMessagesByChannel(c *gin.Context, db *sql.DB) {
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(401, gin.H{"success": false, "message": "Unauthorized"})
+		return
+	}
+
+	channelUsername := c.Param("username")
+	if channelUsername == "" {
+		c.JSON(400, gin.H{"success": false, "message": "Channel username is required"})
+		return
+	}
+
+	messages, err := dbpkg.GetUserChannelMessagesByChannel(db, userID.(int), channelUsername)
+	if err != nil {
+		log.Printf("Error getting channel messages: %v", err)
+		c.JSON(500, gin.H{"success": false, "message": "Failed to get messages"})
+		return
+	}
+
+	c.JSON(200, gin.H{"success": true, "messages": messages})
 }

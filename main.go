@@ -88,6 +88,15 @@ func main() {
 				api.GetUserChannels(c, database)
 			})
 
+			// Channel messages routes
+			protected.GET("/channels/messages", func(c *gin.Context) {
+				api.GetUserChannelMessages(c, database)
+			})
+
+			protected.GET("/channels/:username/messages", func(c *gin.Context) {
+				api.GetUserChannelMessagesByChannel(c, database)
+			})
+
 			// Admin routes
 			protected.DELETE("/users/all", func(c *gin.Context) {
 				api.DeleteAllUsers(c, database)

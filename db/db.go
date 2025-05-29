@@ -280,3 +280,89 @@ func DeleteAllUsers(db *sql.DB) error {
 	_, err := db.Exec("DELETE FROM users")
 	return err
 }
+
+// GetUserChannelMessages получает все сообщения из каналов пользователя
+func GetUserChannelMessages(db *sql.DB, userID int) ([]map[string]interface{}, error) {
+	rows, err := db.Query(`
+		SELECT tm.message_id, tm.message_text, tm.message_date, tm.media_url,
+			   tc.channel_username, tc.channel_title
+		FROM telegram_messages tm
+		JOIN telegram_channels tc ON tm.channel_id = tc.channel_id
+		JOIN user_channels uc ON tc.channel_username = uc.channel_username
+		WHERE uc.user_id = ?
+		ORDER BY tm.message_date DESC`,
+		userID,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var messages []map[string]interface{}
+	for rows.Next() {
+		message := make(map[string]interface{})
+		var messageID int
+		var text, date, username, title string
+		var mediaURL sql.NullString
+		err := rows.Scan(&messageID, &text, &date, &mediaURL, &username, &title)
+		if err != nil {
+			return nil, err
+		}
+		message["message_id"] = messageID
+		message["text"] = text
+		message["date"] = date
+		if mediaURL.Valid {
+			message["media_url"] = mediaURL.String
+		} else {
+			message["media_url"] = ""
+		}
+		message["channel_username"] = username
+		message["channel_title"] = title
+		messages = append(messages, message)
+	}
+
+	return messages, nil
+}
+
+// GetUserChannelMessagesByChannel получает сообщения из конкретного канала пользователя
+func GetUserChannelMessagesByChannel(db *sql.DB, userID int, channelUsername string) ([]map[string]interface{}, error) {
+	rows, err := db.Query(`
+		SELECT tm.message_id, tm.message_text, tm.message_date, tm.media_url,
+			   tc.channel_username, tc.channel_title
+		FROM telegram_messages tm
+		JOIN telegram_channels tc ON tm.channel_id = tc.channel_id
+		JOIN user_channels uc ON tc.channel_username = uc.channel_username
+		WHERE uc.user_id = ? AND tc.channel_username = ?
+		ORDER BY tm.message_date DESC`,
+		userID, channelUsername,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var messages []map[string]interface{}
+	for rows.Next() {
+		message := make(map[string]interface{})
+		var messageID int
+		var text, date, username, title string
+		var mediaURL sql.NullString
+		err := rows.Scan(&messageID, &text, &date, &mediaURL, &username, &title)
+		if err != nil {
+			return nil, err
+		}
+		message["message_id"] = messageID
+		message["text"] = text
+		message["date"] = date
+		if mediaURL.Valid {
+			message["media_url"] = mediaURL.String
+		} else {
+			message["media_url"] = ""
+		}
+		message["channel_username"] = username
+		message["channel_title"] = title
+		messages = append(messages, message)
+	}
+
+	return messages, nil
+}
