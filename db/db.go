@@ -122,3 +122,66 @@ func saveToDBAI(db *sql.DB, question, answer string) error {
 	_, err := db.Exec("INSERT INTO conversations (question, answer, timestamp) VALUES (?, ?, ?)", question, answer, time.Now().Unix())
 	return err
 }
+
+// AddBookmark добавляет закладку
+func AddBookmark(db *sql.DB, userID int, articleID string) error {
+	_, err := db.Exec(
+		`INSERT OR IGNORE INTO bookmarks (user_id, article_id) VALUES (?, ?)`,
+		userID, articleID,
+	)
+	return err
+}
+
+// RemoveBookmark удаляет закладку
+func RemoveBookmark(db *sql.DB, userID int, articleID string) error {
+	_, err := db.Exec(
+		`DELETE FROM bookmarks WHERE user_id = ? AND article_id = ?`,
+		userID, articleID,
+	)
+	return err
+}
+
+// GetUserBookmarks получает все закладки пользователя
+func GetUserBookmarks(db *sql.DB, userID int) ([]NewsArticle, error) {
+	rows, err := db.Query(`
+		SELECT n.article_id, n.title, n.link, n.keywords, n.creator, n.video_url, 
+		       n.description, n.content, n.pub_date, n.image_url, n.source_id, 
+		       n.source_name, n.source_url, n.language, n.country, n.category, n.sentiment
+		FROM bookmarks b
+		JOIN news n ON b.article_id = n.article_id
+		WHERE b.user_id = ?
+		ORDER BY b.created_at DESC`,
+		userID,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var bookmarks []NewsArticle
+	for rows.Next() {
+		var article NewsArticle
+		var keywords, creator, country, category string
+		err := rows.Scan(
+			&article.ArticleID, &article.Title, &article.Link,
+			&keywords, &creator, &article.VideoURL,
+			&article.Description, &article.Content, &article.PubDate,
+			&article.ImageURL, &article.SourceID, &article.SourceName,
+			&article.SourceURL, &article.Language, &country,
+			&category, &article.Sentiment,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		// Преобразуем строки в массивы
+		article.Keywords = strings.Split(keywords, ", ")
+		article.Creator = strings.Split(creator, ", ")
+		article.Country = strings.Split(country, ", ")
+		article.Category = strings.Split(category, ", ")
+
+		bookmarks = append(bookmarks, article)
+	}
+
+	return bookmarks, nil
+}

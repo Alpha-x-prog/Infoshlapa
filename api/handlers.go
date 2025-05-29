@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"log"
 	"net/http"
+	"newsAPI/db"
 	"newsAPI/gemini"
 	"strconv"
 	"strings"
@@ -130,4 +131,76 @@ func GeminiAsk(c *gin.Context) {
 	responseContent := gemini.GeminiResponse("Напиши кратко ответ на вопрос: " + userQuery)
 	// Отправляем JSON-ответ с полученным ответом
 	c.JSON(http.StatusOK, Response{Content: responseContent})
+}
+
+// AddBookmark добавляет новость в закладки
+func AddBookmark(c *gin.Context, database *sql.DB) {
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	var request struct {
+		NewsID string `json:"newsId" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		return
+	}
+
+	err := db.AddBookmark(database, userID.(int), request.NewsID)
+	if err != nil {
+		log.Printf("Error adding bookmark: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add bookmark"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Bookmark added successfully"})
+}
+
+// RemoveBookmark удаляет новость из закладок
+func RemoveBookmark(c *gin.Context, database *sql.DB) {
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	var request struct {
+		NewsID string `json:"newsId" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		return
+	}
+
+	err := db.RemoveBookmark(database, userID.(int), request.NewsID)
+	if err != nil {
+		log.Printf("Error removing bookmark: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to remove bookmark"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Bookmark removed successfully"})
+}
+
+// GetBookmarks получает список закладок пользователя
+func GetBookmarks(c *gin.Context, database *sql.DB) {
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	bookmarks, err := db.GetUserBookmarks(database, userID.(int))
+	if err != nil {
+		log.Printf("Error getting bookmarks: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get bookmarks"})
+		return
+	}
+
+	c.JSON(http.StatusOK, bookmarks)
 }

@@ -18,13 +18,17 @@
 </template>
 
 <script>
+import axios from 'axios'
+
 export default {
     data() {
         return {
             isAIWidgetExpanded: false,
             aiQuestion: '',
             aiResponse: '',
-            isAILoading: false // Add loading state
+            isAILoading: false, // Add loading state
+            loading: false,
+            error: null
         }
     },
     methods: {
@@ -32,18 +36,21 @@ export default {
             this.isAIWidgetExpanded = !this.isAIWidgetExpanded;
         },
         async askAI() {
-            this.isAILoading = true;
-            this.aiResponse = ''; // Clear previous response
+            if (!this.aiQuestion.trim()) return
+
+            this.isAILoading = true
+            this.aiResponse = ''
+            this.error = null
+
             try {
                 const response = await axios.post('/ask', {
-                prompt: this.aiQuestion
-            });
-            this.aiResponse = response.data.content; // Get the "answer" property
-            } catch (error) {
-                console.error('Error asking AI:', error);
-                this.aiResponse = 'Произошла ошибка при отправке запроса.';
+                    prompt: this.aiQuestion
+                })
+                this.aiResponse = response.data.content
+            } catch (err) {
+                this.error = 'Ошибка при обращении к AI: ' + (err.response?.data?.error || err.message)
             } finally {
-                this.isAILoading = false;
+                this.isAILoading = false
             }
         }
     }

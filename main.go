@@ -1,14 +1,10 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"log"
 	"newsAPI/api"
 	"newsAPI/db"
-	"newsAPI/parser"
-	"os"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -20,12 +16,6 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
-	// Получаем API ключ из переменных окружения
-	apiKey := os.Getenv("NEWSDATA_API_KEY")
-	if apiKey == "" {
-		log.Fatal("NEWSDATA_API_KEY не найден в переменных окружения")
-	}
-
 	// Инициализация подключения к БД
 	database, err := db.InitDB()
 	if err != nil {
@@ -33,13 +23,6 @@ func main() {
 		return
 	}
 	defer database.Close()
-
-	categories := []string{"top", "health", "politics", "sports", "business", "science", "food"}
-
-	// Запускаем горутину для каждого типа категории
-	for _, category := range categories {
-		go startNewsFetcher(apiKey, category, database)
-	}
 
 	r := gin.Default()
 
@@ -69,6 +52,19 @@ func main() {
 				}
 				c.JSON(200, gin.H{"success": true, "message": "Welcome to your profile!", "user_id": userID})
 			})
+
+			// Bookmark routes
+			protected.POST("/bookmarks", func(c *gin.Context) {
+				api.AddBookmark(c, database)
+			})
+
+			protected.DELETE("/bookmarks", func(c *gin.Context) {
+				api.RemoveBookmark(c, database)
+			})
+
+			protected.GET("/bookmarks", func(c *gin.Context) {
+				api.GetBookmarks(c, database)
+			})
 		}
 	}
 
@@ -86,20 +82,4 @@ func main() {
 	// Запуск сервера
 	log.Println("Server starting on http://localhost:8080")
 	r.Run(":8080")
-}
-
-func startNewsFetcher(apiKey, category string, database *sql.DB) {
-	ticker := time.NewTicker(10 * time.Minute)
-	defer ticker.Stop()
-
-	apiURL := fmt.Sprintf("https://newsdata.io/api/1/latest?apikey=%%s&category=%s&language=ru&country=ru", category)
-
-	for {
-		log.Printf("Запуск парсинга для категории: %s", category)
-		err := parser.ParseAndSaveNews(apiURL, apiKey, database)
-		if err != nil {
-			log.Printf("Ошибка при парсинге новостей (%s): %v", category, err)
-		}
-		<-ticker.C
-	}
 }
