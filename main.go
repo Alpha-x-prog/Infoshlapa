@@ -5,6 +5,8 @@ import (
 	"log"
 	"newsAPI/api"
 	"newsAPI/db"
+	"newsAPI/handlers"
+	"newsAPI/middleware"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -24,10 +26,17 @@ func main() {
 	}
 	defer database.Close()
 
-	r := gin.Default()
+	// Инициализация обработчиков
+	handlers.InitDB(database)
 
-	// API маршруты
-	apiGroup := r.Group("/api")
+	// Создаем роутер
+	router := gin.Default()
+
+	// Настраиваем CORS
+	router.Use(middleware.CORSMiddleware())
+
+	// Группа API
+	apiGroup := router.Group("/api")
 	{
 		apiGroup.GET("/news", func(c *gin.Context) {
 			api.GetNews(c, database)
@@ -45,13 +54,15 @@ func main() {
 		})
 
 		// Public routes
-		apiGroup.POST("/profile", func(c *gin.Context) {
-			api.ProfileAuthHandler(c, database)
-		})
+		public := apiGroup.Group("/public")
+		{
+			public.GET("/channels", handlers.GetPublicChannels)
+			public.GET("/channels/messages", handlers.GetPublicChannelMessages)
+		}
 
 		// Protected routes (require JWT)
-		protected := apiGroup.Group("/protected")
-		protected.Use(api.JWTAuthMiddleware())
+		protected := apiGroup.Group("")
+		protected.Use(middleware.AuthMiddleware())
 		{
 			protected.GET("/profile", func(c *gin.Context) {
 				userID, exists := c.Get("user_id")
@@ -110,17 +121,17 @@ func main() {
 	}
 
 	// Раздача статических файлов из папки shlapa/dist
-	r.Static("/js", "./shlapa/dist/js")
-	r.Static("/css", "./shlapa/dist/css")
-	r.StaticFile("/", "./shlapa/dist/index.html")
-	r.StaticFile("/favicon.ico", "./shlapa/dist/favicon.ico")
+	router.Static("/js", "./shlapa/dist/js")
+	router.Static("/css", "./shlapa/dist/css")
+	router.StaticFile("/", "./shlapa/dist/index.html")
+	router.StaticFile("/favicon.ico", "./shlapa/dist/favicon.ico")
 
 	// Обработка всех остальных маршрутов для SPA
-	r.NoRoute(func(c *gin.Context) {
+	router.NoRoute(func(c *gin.Context) {
 		c.File("./shlapa/dist/index.html")
 	})
 
 	// Запуск сервера
 	log.Println("Server starting on http://localhost:8080")
-	r.Run(":8080")
+	router.Run(":8080")
 }

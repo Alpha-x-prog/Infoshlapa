@@ -301,7 +301,7 @@ func DeleteAllUsers(db *sql.DB) error {
 func GetUserChannelMessages(db *sql.DB, userID int) ([]map[string]interface{}, error) {
 	rows, err := db.Query(`
 		SELECT tm.message_id, tm.message_text, tm.message_date, tm.media_url,
-			   tc.channel_username, tc.channel_title
+			   tc.channel_username, tc.channel_title, tm.summary
 		FROM telegram_messages tm
 		JOIN telegram_channels tc ON tm.channel_id = tc.channel_id
 		JOIN user_channels uc ON tc.channel_username = uc.channel_username
@@ -318,9 +318,9 @@ func GetUserChannelMessages(db *sql.DB, userID int) ([]map[string]interface{}, e
 	for rows.Next() {
 		message := make(map[string]interface{})
 		var messageID int
-		var text, date, username, title sql.NullString
+		var text, date, username, title, summary sql.NullString
 		var mediaURL sql.NullString
-		err := rows.Scan(&messageID, &text, &date, &mediaURL, &username, &title)
+		err := rows.Scan(&messageID, &text, &date, &mediaURL, &username, &title, &summary)
 		if err != nil {
 			return nil, err
 		}
@@ -334,6 +334,11 @@ func GetUserChannelMessages(db *sql.DB, userID int) ([]map[string]interface{}, e
 		}
 		message["channel_username"] = username.String
 		message["channel_title"] = title.String
+		if summary.Valid {
+			message["summary"] = summary.String
+		} else {
+			message["summary"] = ""
+		}
 		messages = append(messages, message)
 	}
 
@@ -377,6 +382,53 @@ func GetUserChannelMessagesByChannel(db *sql.DB, userID int, channelUsername str
 		}
 		message["channel_username"] = username.String
 		message["channel_title"] = title.String
+		messages = append(messages, message)
+	}
+
+	return messages, nil
+}
+
+// GetPublicChannelMessages получает сообщения из публичных каналов
+func GetPublicChannelMessages(db *sql.DB) ([]map[string]interface{}, error) {
+	rows, err := db.Query(`
+		SELECT tm.message_id, tm.message_text, tm.message_date, tm.media_url,
+			   tc.channel_username, tc.channel_title, tm.summary
+		FROM telegram_messages tm
+		JOIN telegram_channels tc ON tm.channel_id = tc.channel_id
+		WHERE tc.channel_username IN ('priem_mirea', 'mirea_esports', 'mireaprofkom')
+		ORDER BY tm.message_date DESC
+		LIMIT 15
+	`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var messages []map[string]interface{}
+	for rows.Next() {
+		message := make(map[string]interface{})
+		var messageID int
+		var text, date, username, title, summary sql.NullString
+		var mediaURL sql.NullString
+		err := rows.Scan(&messageID, &text, &date, &mediaURL, &username, &title, &summary)
+		if err != nil {
+			return nil, err
+		}
+		message["message_id"] = messageID
+		message["text"] = text.String
+		message["date"] = date.String
+		if mediaURL.Valid {
+			message["media_url"] = mediaURL.String
+		} else {
+			message["media_url"] = ""
+		}
+		message["channel_username"] = username.String
+		message["channel_title"] = title.String
+		if summary.Valid {
+			message["summary"] = summary.String
+		} else {
+			message["summary"] = ""
+		}
 		messages = append(messages, message)
 	}
 

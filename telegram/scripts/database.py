@@ -42,6 +42,7 @@ class Database:
                     message_text TEXT,
                     message_date TIMESTAMP,
                     media_url TEXT,
+                    summary TEXT,
                     FOREIGN KEY (channel_id) REFERENCES telegram_channels (channel_id)
                 )
             ''')
@@ -115,7 +116,7 @@ class Database:
         finally:
             conn.close()
 
-    def add_message(self, message_id, channel_id, text, date, media_url=None):
+    def add_message(self, message_id, channel_id, text, date, media_url=None, summary=None):
         """Добавление нового сообщения"""
         try:
             conn = sqlite3.connect(self.db_file)
@@ -123,9 +124,9 @@ class Database:
             
             cursor.execute('''
                 INSERT INTO telegram_messages 
-                (message_id, channel_id, message_text, message_date, media_url)
-                VALUES (?, ?, ?, ?, ?)
-            ''', (message_id, channel_id, text, date, media_url))
+                (message_id, channel_id, message_text, message_date, media_url, summary)
+                VALUES (?, ?, ?, ?, ?, ?)
+            ''', (message_id, channel_id, text, date, media_url, summary))
             
             conn.commit()
             return True
