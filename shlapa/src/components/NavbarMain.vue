@@ -16,13 +16,13 @@
                 @click.prevent="setCategory('all')">Все</b-dropdown-item>
 
             <b-dropdown-divider></b-dropdown-divider>
-
-            <b-dropdown-item :class="{ active: currentCategory === 'business' }" href="#"
-                @click.prevent="setCategory('business')">бизнес</b-dropdown-item>
-
+            
             <b-dropdown-item :class="{ active: currentCategory === 'top' }" href="#"
                 @click.prevent="setCategory('top')">топ</b-dropdown-item>
 
+            <b-dropdown-item :class="{ active: currentCategory === 'business' }" href="#"
+                @click.prevent="setCategory('business')">бизнес</b-dropdown-item>
+            
             <b-dropdown-item :class="{ active: currentCategory === 'health' }" href="#"
                 @click.prevent="setCategory('health')">здоровье</b-dropdown-item>
 

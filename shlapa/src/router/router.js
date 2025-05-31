@@ -20,7 +20,7 @@ const routes = [
     {
         path: '/bookmarks',
         component: Bookmarks,
-        //meta: { requiresAuth: true }
+        meta: { requiresAuth: true }
     }
 ]
 
