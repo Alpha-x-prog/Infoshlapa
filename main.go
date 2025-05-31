@@ -101,6 +101,11 @@ func main() {
 			protected.DELETE("/users/all", func(c *gin.Context) {
 				api.DeleteAllUsers(c, database)
 			})
+
+			// Gemini AI settings routes
+			protected.PUT("/ai/settings", func(c *gin.Context) {
+				api.UpdateGeminiSettings(c, database)
+			})
 		}
 	}
 

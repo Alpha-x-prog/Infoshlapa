@@ -236,13 +236,18 @@ func RemoveChannel(c *gin.Context, db *sql.DB) {
 		return
 	}
 
-	channelURL := c.Query("channel_url")
-	if channelURL == "" {
+	var req telegram.ChannelRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(400, gin.H{"success": false, "message": "Invalid request format"})
+		return
+	}
+
+	if req.ChannelURL == "" {
 		c.JSON(400, gin.H{"success": false, "message": "Channel URL is required"})
 		return
 	}
 
-	if err := telegram.RemoveChannel(db, userID.(int), channelURL); err != nil {
+	if err := telegram.RemoveChannel(db, userID.(int), req.ChannelURL); err != nil {
 		c.JSON(500, gin.H{"success": false, "message": "Failed to remove channel"})
 		return
 	}
@@ -328,4 +333,26 @@ func GetUserChannelMessagesByChannel(c *gin.Context, db *sql.DB) {
 	}
 
 	c.JSON(200, gin.H{"success": true, "messages": messages})
+}
+
+// UpdateGeminiSettings просто возвращает полученные данные
+func UpdateGeminiSettings(c *gin.Context, _ *sql.DB) {
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(401, gin.H{"success": false, "message": "Unauthorized"})
+		return
+	}
+
+	var data map[string]interface{}
+	if err := c.ShouldBindJSON(&data); err != nil {
+		c.JSON(400, gin.H{"success": false, "message": "Invalid request format"})
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"success": true,
+		"message": "Data received successfully",
+		"user_id": userID,
+		"data":    data,
+	})
 }

@@ -33,7 +33,7 @@ func main() {
 	}
 	defer database.Close()
 
-	categories := []string{"top", "health", "politics", "sports", "business", "science", "food"}
+	categories := []string{"top", "health", "politics", "sports", "business", "science"}
 
 	// Start news fetcher for each category
 	for _, category := range categories {

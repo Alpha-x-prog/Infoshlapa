@@ -101,6 +101,17 @@ func InitDB() (*sql.DB, error) {
 		is_active BOOLEAN DEFAULT TRUE
 	);`
 
+	// Создаем таблицу для закладок
+	createBookmarksTable := `CREATE TABLE IF NOT EXISTS bookmarks (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		user_id INTEGER NOT NULL,
+		article_id TEXT NOT NULL,
+		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+		FOREIGN KEY (user_id) REFERENCES users(id),
+		FOREIGN KEY (article_id) REFERENCES news(article_id),
+		UNIQUE(user_id, article_id)
+	);`
+
 	// Выполняем создание таблиц
 	_, err = db.Exec(createNewsTable)
 	if err != nil {
@@ -123,6 +134,11 @@ func InitDB() (*sql.DB, error) {
 	}
 
 	_, err = db.Exec(createTelegramChannelsTable)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = db.Exec(createBookmarksTable)
 	if err != nil {
 		return nil, err
 	}
@@ -302,22 +318,22 @@ func GetUserChannelMessages(db *sql.DB, userID int) ([]map[string]interface{}, e
 	for rows.Next() {
 		message := make(map[string]interface{})
 		var messageID int
-		var text, date, username, title string
+		var text, date, username, title sql.NullString
 		var mediaURL sql.NullString
 		err := rows.Scan(&messageID, &text, &date, &mediaURL, &username, &title)
 		if err != nil {
 			return nil, err
 		}
 		message["message_id"] = messageID
-		message["text"] = text
-		message["date"] = date
+		message["text"] = text.String
+		message["date"] = date.String
 		if mediaURL.Valid {
 			message["media_url"] = mediaURL.String
 		} else {
 			message["media_url"] = ""
 		}
-		message["channel_username"] = username
-		message["channel_title"] = title
+		message["channel_username"] = username.String
+		message["channel_title"] = title.String
 		messages = append(messages, message)
 	}
 
@@ -345,22 +361,22 @@ func GetUserChannelMessagesByChannel(db *sql.DB, userID int, channelUsername str
 	for rows.Next() {
 		message := make(map[string]interface{})
 		var messageID int
-		var text, date, username, title string
+		var text, date, username, title sql.NullString
 		var mediaURL sql.NullString
 		err := rows.Scan(&messageID, &text, &date, &mediaURL, &username, &title)
 		if err != nil {
 			return nil, err
 		}
 		message["message_id"] = messageID
-		message["text"] = text
-		message["date"] = date
+		message["text"] = text.String
+		message["date"] = date.String
 		if mediaURL.Valid {
 			message["media_url"] = mediaURL.String
 		} else {
 			message["media_url"] = ""
 		}
-		message["channel_username"] = username
-		message["channel_title"] = title
+		message["channel_username"] = username.String
+		message["channel_title"] = title.String
 		messages = append(messages, message)
 	}
 
