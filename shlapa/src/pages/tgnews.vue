@@ -4,6 +4,7 @@
 
         <section class="main-container">
             <NavbarTG/>
+            <TgNewsContent/>
             <TimeBar/>
             <AiWidget/>
         </section>
@@ -17,6 +18,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
 import NavbarTG from "@/components/NavbarTG";
+import TgNewsContent from "@/components/TgNewsContent";
 import TimeBar from "@/components/TimeBar";
 import AiWidget from "@/components/AiWidget.vue";
 </script>

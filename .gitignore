@@ -39,4 +39,35 @@ telegram/scripts/config.py
 .Spotlight-V100
 .Trashes
 ehthumbs.db
-Thumbs.db 
+Thumbs.db
+
+# Dependencies
+node_modules/
+/dist
+
+# Local env files
+.env.local
+.env.*.local
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Go binary and test files
+*.test
+*.prof
+*.out
+
+# Database files
+*.db-journal 

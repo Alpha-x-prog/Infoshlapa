@@ -6,15 +6,20 @@
             <p>Вы так же получите доступ к новостям из любимых Telegram каналов.</p>
         </div>
         <div class="profile-form-login">
-            <b-form @submit="onSubmit" @reset="onReset" v-if="show">
-                <b-alert
-                    v-model="showAlert"
-                    :variant="alertVariant"
-                    dismissible
-                >
-                    {{ alertMessage }}
-                </b-alert>
+            <b-alert
+                v-model="showAlert"
+                :variant="alertVariant"
+                dismissible
+            >
+                {{ alertMessage }}
+            </b-alert>
 
+            <div v-if="isLoggedIn" class="logged-in-container">
+                <h3>Вы вошли как: {{ userEmail }}</h3>
+                <b-button variant="danger" @click="logout" class="mt-3">Выйти</b-button>
+            </div>
+
+            <b-form v-else @submit="onSubmit" @reset="onReset" v-if="show">
                 <b-form-group
                     id="input-group-1"
                     label="Email:"
@@ -59,7 +64,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+import axios from '@/utils/axios'
 
 export default {
     data() {
@@ -72,7 +77,8 @@ export default {
             isRegistering: false,
             showAlert: false,
             alertVariant: 'success',
-            alertMessage: ''
+            alertMessage: '',
+            userEmail: ''
         }
     },
     computed: {
@@ -90,6 +96,9 @@ export default {
                    this.passwordValidation && 
                    this.form.email.length > 0 && 
                    this.form.password.length > 0
+        },
+        isLoggedIn() {
+            return !!localStorage.getItem('token')
         }
     },
     methods: {
@@ -97,25 +106,32 @@ export default {
             event.preventDefault()
             if (this.formValid) {
                 try {
-                    const endpoint = this.isRegistering ? '/api/auth/register' : '/api/auth/login'
-                    const { data } = await axios.post(`http://localhost:8080${endpoint}`, this.form)
+                    const endpoint = this.isRegistering ? '/api/register' : '/api/login'
+                    const { data } = await axios.post(endpoint, this.form)
                     
-                    if (data.status === 'success') {
+                    if (data.success) {
                         this.showAlert = true
                         this.alertVariant = 'success'
                         this.alertMessage = data.message
-                        // Here you might want to store the token and redirect
-                        // localStorage.setItem('token', data.token)
-                        // this.$router.push('/dashboard')
+                        
+                        if (data.token) {
+                            localStorage.setItem('token', data.token)
+                            localStorage.setItem('user', JSON.stringify(data.user))
+                            this.userEmail = data.user.email
+                            setTimeout(() => {
+                                window.location.reload()
+                            }, 1000)
+                        }
                     } else {
                         this.showAlert = true
                         this.alertVariant = 'danger'
-                        this.alertMessage = data.message
+                        this.alertMessage = data.error || 'Произошла ошибка'
                     }
                 } catch (error) {
                     this.showAlert = true
                     this.alertVariant = 'danger'
-                    this.alertMessage = error.response?.data?.message || 'Произошла ошибка при подключении к серверу'
+                    this.alertMessage = error.response?.data?.error || 'Ошибка подключения к серверу'
+                    console.error('Error:', error.response?.data || error.message)
                 }
             }
         },
@@ -131,6 +147,23 @@ export default {
         toggleMode() {
             this.isRegistering = !this.isRegistering
             this.showAlert = false
+        },
+        logout() {
+            localStorage.removeItem('token')
+            localStorage.removeItem('user')
+            this.userEmail = ''
+            this.showAlert = true
+            this.alertVariant = 'success'
+            this.alertMessage = 'Вы успешно вышли из системы'
+            setTimeout(() => {
+                                window.location.reload()
+            }, 1000)
+        }
+    },
+    mounted() {
+        const user = localStorage.getItem('user')
+        if (user) {
+            this.userEmail = JSON.parse(user).email
         }
     }
 }
@@ -151,9 +184,14 @@ export default {
 }
 .profile-form-login {
     width: 55%;
-    /*margin-right: 5%;*/
 }
 .profile-form-login-button {
     margin-right: 10px;
+}
+.logged-in-container {
+    text-align: center;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
 }
 </style>

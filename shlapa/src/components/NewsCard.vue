@@ -4,18 +4,31 @@
             <img :src="imageUrl" alt="News Image" class="news-image">
             <span class="news-category">{{ news.tags || 'Без категории' }}</span>
         </div>
-        <div class="news-content">
+        <div class="news-content" @click="toggleContent">
             <h3 class="news-title">{{ news.title || 'Без заголовка' }}</h3>
             <p class="news-text" v-if="showText">{{ news.description || 'Нет описания' }}</p>
         </div>
         <div class="news-footer">
             <span class="news-date">{{ formatDate(news.publishedAt) }}</span>
-            <a :href="news.url || '#'" class="news-source">Источник...</a>
+            <div class="news-actions">
+                <button 
+                    v-if="isAuthenticated"
+                    class="bookmark-btn"
+                    @click.stop="toggleBookmark"
+                    :title="isBookmarked ? 'Удалить из закладок' : 'Добавить в закладки'"
+                >
+                    <i :class="['fas', isBookmarked ? 'fa-bookmark' : 'fa-bookmark-o']"></i>
+                    закладка
+                </button>
+                <a :href="news.url || '#'" class="news-source" target="_blank">Источник...</a>
+            </div>
         </div>
     </div>
 </template>
 
 <script>
+import axios from '@/utils/axios'
+
 export default {
     props: {
         news: {
@@ -33,12 +46,16 @@ export default {
     },
     data() {
         return {
-            showText: false
+            showText: false,
+            isBookmarked: false
         };
     },
     computed: {
         imageUrl() {
             return this.news.urlToImage || 'https://via.placeholder.com/350x250?text=No+Image';
+        },
+        isAuthenticated() {
+            return !!localStorage.getItem('token');
         }
     },
     methods: {
@@ -48,11 +65,51 @@ export default {
         formatDate(date) {
             if (!date) return 'Дата неизвестна';
             return new Date(date).toLocaleString();
+        },
+        async toggleBookmark() {
+            if (!this.isAuthenticated) {
+                this.$router.push('/profile');
+                return;
+            }
+
+            try {
+                if (this.isBookmarked) {
+                    await axios.delete('/api/protected/bookmarks', {
+                        data: { 
+                            newsId: this.news.id,
+                            news: this.news
+                        }
+                    });
+                    this.isBookmarked = false;
+                } else {
+                    await axios.post('/api/protected/bookmarks', {
+                        newsId: this.news.id,
+                        news: this.news
+                    });
+                    this.isBookmarked = true;
+                }
+            } catch (error) {
+                console.error('Error toggling bookmark:', error);
+            }
+        }
+    },
+    async mounted() {
+        if (this.isAuthenticated) {
+            try {
+                const response = await axios.get('/api/protected/bookmarks');
+                if (response.data && Array.isArray(response.data)) {
+                    this.isBookmarked = response.data.some(bookmark => bookmark.id === this.news.id);
+                } else {
+                    this.isBookmarked = false;
+                }
+            } catch (error) {
+                console.error('Error checking bookmark status:', error);
+                this.isBookmarked = false;
+            }
         }
     }
 }
 </script>
-
 
 <style scoped>
     .news-card {
@@ -103,6 +160,7 @@ export default {
         padding: 15px;
         text-align: left;
         transition: padding 0.3s ease;
+        cursor: pointer;
     }
     .news-title {
         font-size: 18pt;
@@ -120,16 +178,21 @@ export default {
         height: auto;
     }
     .news-footer {
-        width: 80%;
+        width: 90%;
         display: flex;
         justify-content: space-between; 
-        align-items: end;
+        align-items: center;
         font-size: 12pt;
         color: #777;
-        margin: 0 0 15px 10%; 
+        margin: 0 5% 15px 5%; 
     }
     .news-date {
         font-style: italic; 
+    }
+    .news-actions {
+        display: flex;
+        align-items: center;
+        gap: 15px;
     }
     .news-source {
         text-decoration: none;
@@ -138,5 +201,20 @@ export default {
     }
     .news-source:hover{
         color: #91b5d3;
+    }
+    .bookmark-btn {
+        background: none;
+        border: none;
+        color: #549cd6;
+        cursor: pointer;
+        padding: 5px;
+        font-size: 1.2em;
+        transition: color 0.3s ease;
+    }
+    .bookmark-btn:hover {
+        color: #91b5d3;
+    }
+    .bookmark-btn i {
+        pointer-events: none;
     }
 </style>

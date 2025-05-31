@@ -6,12 +6,7 @@
             <router-link to="/profile">Профиль</router-link>
         </nav>
 
-        <b-nav pills>
-            <b-nav-form @submit.stop.prevent="alert('Форма отправлена')">
-                <b-form-input aria-label="Ввод" class="mr-1"></b-form-input>
-                <b-button type="submit">Загрузить</b-button>
-            </b-nav-form>
-        </b-nav>
+        
 
 
 

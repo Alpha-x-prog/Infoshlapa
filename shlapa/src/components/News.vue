@@ -84,9 +84,13 @@ export default {
                 this.loading = false;
             }
         },
-        loadMore() {
+        loadMore(event) {
+            event.preventDefault();
             if (!this.loading && this.hasMore) {
-                this.fetchNews();
+                const currentPosition = window.pageYOffset;
+                this.fetchNews().then(() => {
+                    window.scrollTo(0, currentPosition);
+                });
             }
         }
     },
