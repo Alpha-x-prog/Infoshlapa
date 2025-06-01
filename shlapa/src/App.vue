@@ -1,12 +1,20 @@
 <template>
 <div class="app">
     <router-view></router-view>
+    <div  @click="scrollToTop" class="up-button">
+        <p>Вверх</p>
+    </div>
 </div>
 </template>
 
 <script>
 export default {
-    name: 'App'
+    name: 'App',
+    methods: {
+        scrollToTop() {
+            window.scrollTo(0, 0);
+        }
+    } 
 }
 </script>
 
@@ -42,4 +50,35 @@ nav a.router-link-active {
     color: #42b983;
 }
 
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Noto Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+#app {
+    font-family: 'Noto Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-align: center;
+    color: #2c3e50;
+}
+.up-button {
+    position: fixed;
+    text-align: center;
+    background-color: #2d8a60c9;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    bottom: 20px;
+    left: 20px;
+    z-index: 1000;
+}
+.up-button p{
+    font-size: 1.0rem;
+    color: #fafafa;
+    font-weight: 400;
+    padding: 0;
+    margin: 0;
+}
 </style>

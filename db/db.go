@@ -7,6 +7,7 @@ import (
 	"newsAPI/collyan"
 	"newsAPI/gemini"
 	_ "newsAPI/gemini"
+	"newsAPI/models"
 	"strings"
 	"time"
 
@@ -233,13 +234,13 @@ func RemoveBookmark(db *sql.DB, userID int, articleID string) error {
 }
 
 // GetUserBookmarks получает все закладки пользователя
-func GetUserBookmarks(db *sql.DB, userID int) ([]NewsArticle, error) {
+func GetUserBookmarks(db *sql.DB, userID int) ([]models.NewsArticle, error) {
 	log.Printf("DB GetUserBookmarks: Fetching bookmarks for user %d", userID)
 
 	rows, err := db.Query(`
 		SELECT n.article_id, n.title, n.link, n.keywords, n.creator, n.video_url, 
-		       n.description, n.content, n.pub_date, n.image_url, n.source_id, 
-		       n.source_name, n.source_url, n.language, n.country, n.category, n.sentiment
+			   n.description, n.content, n.pub_date, n.image_url, n.source_id, 
+			   n.source_name, n.source_url, n.language, n.country, n.category, n.sentiment
 		FROM bookmarks b
 		JOIN news n ON b.article_id = n.article_id
 		WHERE b.user_id = ?
@@ -252,9 +253,9 @@ func GetUserBookmarks(db *sql.DB, userID int) ([]NewsArticle, error) {
 	}
 	defer rows.Close()
 
-	var bookmarks []NewsArticle
+	var bookmarks []models.NewsArticle
 	for rows.Next() {
-		var article NewsArticle
+		var article models.NewsArticle
 		var keywords, creator, country, category string
 		err := rows.Scan(
 			&article.ArticleID, &article.Title, &article.Link,
@@ -272,8 +273,8 @@ func GetUserBookmarks(db *sql.DB, userID int) ([]NewsArticle, error) {
 		// Преобразуем строки в массивы
 		article.Keywords = strings.Split(keywords, ", ")
 		article.Creator = strings.Split(creator, ", ")
-		article.Country = strings.Split(country, ", ")
-		article.Category = strings.Split(category, ", ")
+		article.Country = country
+		article.Tags = category
 
 		bookmarks = append(bookmarks, article)
 	}
@@ -473,4 +474,60 @@ func GetPublicChannelMessages(db *sql.DB) ([]map[string]interface{}, error) {
 	}
 
 	return messages, nil
+}
+
+// SaveNewsArticle сохраняет статью в базу данных
+func SaveNewsArticle(db *sql.DB, article *models.NewsArticle) error {
+	log.Printf("DB SaveNewsArticle: Attempting to save article %s", article.ArticleID)
+
+	// Prepare the arrays for storage
+	keywords := strings.Join(article.Keywords, ", ")
+	creator := strings.Join(article.Creator, ", ")
+	country := article.Country
+	category := article.Tags
+
+	// Check if article already exists
+	var exists bool
+	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM news WHERE article_id = ?)", article.ArticleID).Scan(&exists)
+	if err != nil {
+		log.Printf("DB SaveNewsArticle: Error checking if article exists: %v", err)
+		return err
+	}
+
+	if exists {
+		// Update existing article
+		_, err = db.Exec(`
+			UPDATE news SET 
+				title = ?, link = ?, keywords = ?, creator = ?, video_url = ?,
+				description = ?, content = ?, pub_date = ?, image_url = ?,
+				source_id = ?, source_name = ?, source_url = ?, language = ?,
+				country = ?, category = ?, sentiment = ?
+			WHERE article_id = ?`,
+			article.Title, article.Link, keywords, creator, article.VideoURL,
+			article.Description, article.Content, article.PubDate, article.ImageURL,
+			article.SourceID, article.SourceName, article.SourceURL, article.Language,
+			country, category, article.Sentiment, article.ArticleID,
+		)
+	} else {
+		// Insert new article
+		_, err = db.Exec(`
+			INSERT INTO news (
+				article_id, title, link, keywords, creator, video_url,
+				description, content, pub_date, image_url, source_id,
+				source_name, source_url, language, country, category, sentiment
+			) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+			article.ArticleID, article.Title, article.Link, keywords, creator, article.VideoURL,
+			article.Description, article.Content, article.PubDate, article.ImageURL,
+			article.SourceID, article.SourceName, article.SourceURL, article.Language,
+			country, category, article.Sentiment,
+		)
+	}
+
+	if err != nil {
+		log.Printf("DB SaveNewsArticle: Error saving article: %v", err)
+		return err
+	}
+
+	log.Printf("DB SaveNewsArticle: Successfully saved article %s", article.ArticleID)
+	return nil
 }

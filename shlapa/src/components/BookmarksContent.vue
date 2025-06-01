@@ -13,7 +13,7 @@
         <div class="bookmarks-list" v-if="isAuthenticated && bookmarks.length > 0">
             <NewsCard
                 v-for="news in bookmarks"
-                :key="news.id"
+                :key="news.article_id || news.id"
                 :news="news"
                 @bookmark-updated="handleBookmarkUpdate"
             />
@@ -26,7 +26,7 @@
 </template>
 
 <script>
-import axios from 'axios';
+import axios from '@/utils/axios';
 import NewsCard from './NewsCard.vue';
 
 export default {
@@ -42,7 +42,7 @@ export default {
     },
     computed: {
         isAuthenticated() {
-            return localStorage.getItem('token') !== null;
+            return !!localStorage.getItem('token');
         }
     },
     methods: {
@@ -53,24 +53,34 @@ export default {
 
             this.loading = true;
             try {
-                const response = await axios.get('/api/protected/bookmarks', {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    }
-                });
-
-                if (response.data) {
-                    this.bookmarks = response.data;
+                const response = await axios.get('/api/protected/bookmarks');
+                console.log('Raw bookmark data:', response.data);
+                if (Array.isArray(response.data)) {
+                    this.bookmarks = response.data.map(bookmark => {
+                        console.log('Processing bookmark:', bookmark);
+                        const transformed = {
+                            ...bookmark,
+                            tags: bookmark.tags || (Array.isArray(bookmark.category) ? bookmark.category.join(', ') : bookmark.category)
+                        };
+                        console.log('Transformed bookmark:', transformed);
+                        return transformed;
+                    });
+                } else {
+                    console.error('Unexpected response format:', response.data);
+                    this.bookmarks = [];
                 }
             } catch (error) {
                 console.error('Error fetching bookmarks:', error);
+                this.bookmarks = [];
             } finally {
                 this.loading = false;
             }
         },
         handleBookmarkUpdate({ id, isBookmarked }) {
             if (!isBookmarked) {
-                this.bookmarks = this.bookmarks.filter(news => news.article_id !== id);
+                this.bookmarks = this.bookmarks.filter(news => 
+                    (news.article_id || news.id) !== id
+                );
             }
         }
     },
@@ -109,10 +119,13 @@ export default {
 }
 
 .bookmarks-list {
-    display: grid;
-    gap: 20px;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-    justify-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    user-select: none;
 }
 
 .unauthorized-message {
