@@ -17,6 +17,11 @@ func init() {
 	jwtKey = []byte(os.Getenv("JWT_SECRET_KEY"))
 }
 
+// GetJWTKey returns the JWT key for token validation
+func GetJWTKey() []byte {
+	return jwtKey
+}
+
 type Claims struct {
 	UserID int `json:"user_id"`
 	jwt.RegisteredClaims

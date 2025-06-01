@@ -76,15 +76,13 @@ export default {
                 if (this.isBookmarked) {
                     await axios.delete('/api/protected/bookmarks', {
                         data: { 
-                            newsId: this.news.id,
-                            news: this.news
+                            newsId: this.news.article_id
                         }
                     });
                     this.isBookmarked = false;
                 } else {
                     await axios.post('/api/protected/bookmarks', {
-                        newsId: this.news.id,
-                        news: this.news
+                        newsId: this.news.article_id
                     });
                     this.isBookmarked = true;
                 }
@@ -98,7 +96,7 @@ export default {
             try {
                 const response = await axios.get('/api/protected/bookmarks');
                 if (response.data && Array.isArray(response.data)) {
-                    this.isBookmarked = response.data.some(bookmark => bookmark.id === this.news.id);
+                    this.isBookmarked = response.data.some(bookmark => bookmark.article_id === this.news.article_id);
                 } else {
                     this.isBookmarked = false;
                 }

@@ -134,10 +134,36 @@ func GeminiAsk(c *gin.Context) {
 	c.JSON(http.StatusOK, Response{Content: responseContent})
 }
 
-// AddBookmark добавляет новость в закладки
-func AddBookmark(c *gin.Context, database *sql.DB) {
+// GetBookmarks получает список закладок пользователя
+func GetBookmarks(c *gin.Context, database *sql.DB) {
+	log.Printf("GetBookmarks: Starting to fetch bookmarks")
+
 	userID, exists := c.Get("user_id")
 	if !exists {
+		log.Printf("GetBookmarks: User ID not found in context")
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+	log.Printf("GetBookmarks: Fetching bookmarks for user ID: %v", userID)
+
+	bookmarks, err := dbpkg.GetUserBookmarks(database, userID.(int))
+	if err != nil {
+		log.Printf("GetBookmarks: Error getting bookmarks: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get bookmarks"})
+		return
+	}
+
+	log.Printf("GetBookmarks: Successfully retrieved %d bookmarks for user %v", len(bookmarks), userID)
+	c.JSON(http.StatusOK, bookmarks)
+}
+
+// AddBookmark добавляет новость в закладки
+func AddBookmark(c *gin.Context, database *sql.DB) {
+	log.Printf("AddBookmark: Starting to add bookmark")
+
+	userID, exists := c.Get("user_id")
+	if !exists {
+		log.Printf("AddBookmark: User ID not found in context")
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		return
 	}
@@ -147,24 +173,44 @@ func AddBookmark(c *gin.Context, database *sql.DB) {
 	}
 
 	if err := c.ShouldBindJSON(&request); err != nil {
+		log.Printf("AddBookmark: Invalid request format: %v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
 		return
 	}
+	log.Printf("AddBookmark: Adding bookmark for user %v, news ID: %s", userID, request.NewsID)
 
-	err := dbpkg.AddBookmark(database, userID.(int), request.NewsID)
+	// Check if the news article exists
+	var articleExists bool
+	err := database.QueryRow("SELECT EXISTS(SELECT 1 FROM news WHERE article_id = ?)", request.NewsID).Scan(&articleExists)
 	if err != nil {
-		log.Printf("Error adding bookmark: %v", err)
+		log.Printf("AddBookmark: Error checking if news exists: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to check news existence"})
+		return
+	}
+	if !articleExists {
+		log.Printf("AddBookmark: News article with ID %s does not exist", request.NewsID)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "News article does not exist"})
+		return
+	}
+
+	err = dbpkg.AddBookmark(database, userID.(int), request.NewsID)
+	if err != nil {
+		log.Printf("AddBookmark: Error adding bookmark: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add bookmark"})
 		return
 	}
 
+	log.Printf("AddBookmark: Successfully added bookmark for user %v, news ID: %s", userID, request.NewsID)
 	c.JSON(http.StatusOK, gin.H{"message": "Bookmark added successfully"})
 }
 
 // RemoveBookmark удаляет новость из закладок
 func RemoveBookmark(c *gin.Context, database *sql.DB) {
+	log.Printf("RemoveBookmark: Starting to remove bookmark")
+
 	userID, exists := c.Get("user_id")
 	if !exists {
+		log.Printf("RemoveBookmark: User ID not found in context")
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		return
 	}
@@ -174,36 +220,21 @@ func RemoveBookmark(c *gin.Context, database *sql.DB) {
 	}
 
 	if err := c.ShouldBindJSON(&request); err != nil {
+		log.Printf("RemoveBookmark: Invalid request format: %v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
 		return
 	}
+	log.Printf("RemoveBookmark: Removing bookmark for user %v, news ID: %s", userID, request.NewsID)
 
 	err := dbpkg.RemoveBookmark(database, userID.(int), request.NewsID)
 	if err != nil {
-		log.Printf("Error removing bookmark: %v", err)
+		log.Printf("RemoveBookmark: Error removing bookmark: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to remove bookmark"})
 		return
 	}
 
+	log.Printf("RemoveBookmark: Successfully removed bookmark for user %v, news ID: %s", userID, request.NewsID)
 	c.JSON(http.StatusOK, gin.H{"message": "Bookmark removed successfully"})
-}
-
-// GetBookmarks получает список закладок пользователя
-func GetBookmarks(c *gin.Context, database *sql.DB) {
-	userID, exists := c.Get("user_id")
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-		return
-	}
-
-	bookmarks, err := dbpkg.GetUserBookmarks(database, userID.(int))
-	if err != nil {
-		log.Printf("Error getting bookmarks: %v", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get bookmarks"})
-		return
-	}
-
-	c.JSON(http.StatusOK, bookmarks)
 }
 
 // AddChannel добавляет новый канал для пользователя

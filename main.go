@@ -61,7 +61,7 @@ func main() {
 		}
 
 		// Protected routes (require JWT)
-		protected := apiGroup.Group("")
+		protected := apiGroup.Group("/protected")
 		protected.Use(middleware.AuthMiddleware())
 		{
 			protected.GET("/profile", func(c *gin.Context) {

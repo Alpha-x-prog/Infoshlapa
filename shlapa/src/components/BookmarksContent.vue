@@ -53,14 +53,14 @@ export default {
 
             this.loading = true;
             try {
-                const response = await axios.get('/api/bookmarks', {
+                const response = await axios.get('/api/protected/bookmarks', {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
                     }
                 });
 
-                if (response.data.status === 'success') {
-                    this.bookmarks = response.data.bookmarks;
+                if (response.data) {
+                    this.bookmarks = response.data;
                 }
             } catch (error) {
                 console.error('Error fetching bookmarks:', error);
@@ -70,7 +70,7 @@ export default {
         },
         handleBookmarkUpdate({ id, isBookmarked }) {
             if (!isBookmarked) {
-                this.bookmarks = this.bookmarks.filter(news => news.id !== id);
+                this.bookmarks = this.bookmarks.filter(news => news.article_id !== id);
             }
         }
     },

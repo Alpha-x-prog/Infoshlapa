@@ -3,6 +3,7 @@ package db
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"newsAPI/collyan"
 	"newsAPI/gemini"
 	_ "newsAPI/gemini"
@@ -181,24 +182,60 @@ func saveToDBAI(db *sql.DB, question, answer string) error {
 
 // AddBookmark добавляет закладку
 func AddBookmark(db *sql.DB, userID int, articleID string) error {
-	_, err := db.Exec(
-		`INSERT OR IGNORE INTO bookmarks (user_id, article_id) VALUES (?, ?)`,
+	log.Printf("DB AddBookmark: Attempting to add bookmark for user %d, article %s", userID, articleID)
+
+	// Check if bookmark already exists
+	var exists bool
+	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM bookmarks WHERE user_id = ? AND article_id = ?)", userID, articleID).Scan(&exists)
+	if err != nil {
+		log.Printf("DB AddBookmark: Error checking if bookmark exists: %v", err)
+		return err
+	}
+	if exists {
+		log.Printf("DB AddBookmark: Bookmark already exists for user %d, article %s", userID, articleID)
+		return nil
+	}
+
+	result, err := db.Exec(
+		`INSERT INTO bookmarks (user_id, article_id) VALUES (?, ?)`,
 		userID, articleID,
 	)
-	return err
+	if err != nil {
+		log.Printf("DB AddBookmark: Error adding bookmark: %v", err)
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		log.Printf("DB AddBookmark: Error getting rows affected: %v", err)
+		return err
+	}
+
+	log.Printf("DB AddBookmark: Successfully added bookmark for user %d, article %s (rows affected: %d)", userID, articleID, rowsAffected)
+	return nil
 }
 
 // RemoveBookmark удаляет закладку
 func RemoveBookmark(db *sql.DB, userID int, articleID string) error {
+	log.Printf("DB RemoveBookmark: Attempting to remove bookmark for user %d, article %s", userID, articleID)
+
 	_, err := db.Exec(
 		`DELETE FROM bookmarks WHERE user_id = ? AND article_id = ?`,
 		userID, articleID,
 	)
-	return err
+	if err != nil {
+		log.Printf("DB RemoveBookmark: Error removing bookmark: %v", err)
+		return err
+	}
+
+	log.Printf("DB RemoveBookmark: Successfully removed bookmark for user %d, article %s", userID, articleID)
+	return nil
 }
 
 // GetUserBookmarks получает все закладки пользователя
 func GetUserBookmarks(db *sql.DB, userID int) ([]NewsArticle, error) {
+	log.Printf("DB GetUserBookmarks: Fetching bookmarks for user %d", userID)
+
 	rows, err := db.Query(`
 		SELECT n.article_id, n.title, n.link, n.keywords, n.creator, n.video_url, 
 		       n.description, n.content, n.pub_date, n.image_url, n.source_id, 
@@ -210,6 +247,7 @@ func GetUserBookmarks(db *sql.DB, userID int) ([]NewsArticle, error) {
 		userID,
 	)
 	if err != nil {
+		log.Printf("DB GetUserBookmarks: Error querying bookmarks: %v", err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -227,6 +265,7 @@ func GetUserBookmarks(db *sql.DB, userID int) ([]NewsArticle, error) {
 			&category, &article.Sentiment,
 		)
 		if err != nil {
+			log.Printf("DB GetUserBookmarks: Error scanning bookmark row: %v", err)
 			return nil, err
 		}
 
@@ -239,6 +278,7 @@ func GetUserBookmarks(db *sql.DB, userID int) ([]NewsArticle, error) {
 		bookmarks = append(bookmarks, article)
 	}
 
+	log.Printf("DB GetUserBookmarks: Successfully retrieved %d bookmarks for user %d", len(bookmarks), userID)
 	return bookmarks, nil
 }
 
