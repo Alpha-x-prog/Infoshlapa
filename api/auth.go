@@ -15,6 +15,14 @@ var jwtKey []byte
 
 func init() {
 	jwtKey = []byte(os.Getenv("JWT_SECRET_KEY"))
+	if len(jwtKey) == 0 {
+		jwtKey = []byte("your-256-bit-secret") // Fallback secret key
+	}
+}
+
+// GetJWTKey returns the JWT secret key
+func GetJWTKey() []byte {
+	return jwtKey
 }
 
 type Claims struct {

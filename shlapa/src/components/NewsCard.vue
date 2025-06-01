@@ -2,24 +2,25 @@
     <div class="news-card" @click="toggleContent">
         <div class="news-image-container" :class="{ hidden: showText }">
             <img :src="imageUrl" alt="News Image" class="news-image">
-            <span class="news-category">{{ news.tags || 'Без категории' }}</span>
+            <span class="news-category" @click.stop="toggleBookmark">
+                <!--{{ news.tags || 'Без категории' }}-->
+                <button 
+                    v-if="isAuthenticated"
+                    class="bookmark-btn"
+                    
+                    :title="isBookmarked ? 'Удалить из закладок' : 'Добавить в закладки'">
+                    <i :class="['far', isBookmarked ? 'fas fa-bookmark' : 'far fa-bookmark']"></i>
+                </button>
+            </span>
         </div>
-        <div class="news-content" @click="toggleContent">
+        <div class="news-content">
             <h3 class="news-title">{{ news.title || 'Без заголовка' }}</h3>
             <p class="news-text" v-if="showText">{{ news.description || 'Нет описания' }}</p>
         </div>
         <div class="news-footer">
             <span class="news-date">{{ formatDate(news.publishedAt) }}</span>
             <div class="news-actions">
-                <button 
-                    v-if="isAuthenticated"
-                    class="bookmark-btn"
-                    @click.stop="toggleBookmark"
-                    :title="isBookmarked ? 'Удалить из закладок' : 'Добавить в закладки'"
-                >
-                    <i :class="['fas', isBookmarked ? 'fa-bookmark' : 'fa-bookmark-o']"></i>
-                    закладка
-                </button>
+                
                 <a :href="news.url || '#'" class="news-source" target="_blank">Источник...</a>
             </div>
         </div>
@@ -52,7 +53,7 @@ export default {
     },
     computed: {
         imageUrl() {
-            return this.news.urlToImage || 'https://via.placeholder.com/350x250?text=No+Image';
+            return this.news.urlToImage || this.news.image_url || './image/no_image.png';
         },
         isAuthenticated() {
             return !!localStorage.getItem('token');
@@ -63,7 +64,11 @@ export default {
             this.showText = !this.showText;
         },
         formatDate(date) {
-            if (!date) return 'Дата неизвестна';
+            if (!date) {
+                // Try pub_date if publishedAt is not available
+                date = this.news.pub_date;
+                if (!date) return 'Дата неизвестна';
+            }
             return new Date(date).toLocaleString();
         },
         async toggleBookmark() {
@@ -76,14 +81,14 @@ export default {
                 if (this.isBookmarked) {
                     await axios.delete('/api/protected/bookmarks', {
                         data: { 
-                            newsId: this.news.id,
+                            newsId: this.news.article_id,
                             news: this.news
                         }
                     });
                     this.isBookmarked = false;
                 } else {
                     await axios.post('/api/protected/bookmarks', {
-                        newsId: this.news.id,
+                        newsId: this.news.article_id,
                         news: this.news
                     });
                     this.isBookmarked = true;
@@ -98,7 +103,7 @@ export default {
             try {
                 const response = await axios.get('/api/protected/bookmarks');
                 if (response.data && Array.isArray(response.data)) {
-                    this.isBookmarked = response.data.some(bookmark => bookmark.id === this.news.id);
+                    this.isBookmarked = response.data.some(bookmark => bookmark.article_id === this.news.article_id);
                 } else {
                     this.isBookmarked = false;
                 }

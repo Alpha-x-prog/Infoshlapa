@@ -4,7 +4,7 @@
             <router-link to="/" class="island-moments-font">Новости</router-link> 
             <router-link to="/tgnews">Тг новости</router-link> 
             <router-link to="/profile">Профиль</router-link>
-            <router-link to="/bookmarks">Закладки</router-link>
+            <router-link to="/bookmarks" >Закладки</router-link>
             
         </nav>
     </div>

@@ -127,7 +127,7 @@ export default {
 .error { 
     color: #ac3a3a;
     padding: 15px;
-    background:rgb(222, 150, 150);
+    background:rgb(211, 175, 175);
     border-radius: 10px;
     border: 1px solid  #ac3a3a;
 }

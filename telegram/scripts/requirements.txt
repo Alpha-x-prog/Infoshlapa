@@ -1,1 +1,5 @@
-telethon==1.28.5 
+telethon==1.28.5
+python-dotenv==1.0.0
+requests==2.31.0
+urllib3==2.1.0
+aiofiles==23.2.1 

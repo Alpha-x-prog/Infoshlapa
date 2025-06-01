@@ -163,28 +163,34 @@ func AddBookmark(c *gin.Context, database *sql.DB) {
 
 // RemoveBookmark удаляет новость из закладок
 func RemoveBookmark(c *gin.Context, database *sql.DB) {
+	log.Printf("RemoveBookmark: Starting to remove bookmark")
+
 	userID, exists := c.Get("user_id")
 	if !exists {
+		log.Printf("RemoveBookmark: User ID not found in context")
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		return
 	}
 
 	var request struct {
-		NewsID string `json:"newsId" binding:"required"`
+		NewsId string `json:"newsId" binding:"required"`
 	}
 
 	if err := c.ShouldBindJSON(&request); err != nil {
+		log.Printf("RemoveBookmark: Invalid request format: %v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
 		return
 	}
+	log.Printf("RemoveBookmark: Removing bookmark for user %v, news ID: %s", userID, request.NewsId)
 
-	err := dbpkg.RemoveBookmark(database, userID.(int), request.NewsID)
+	err := dbpkg.RemoveBookmark(database, userID.(int), request.NewsId)
 	if err != nil {
-		log.Printf("Error removing bookmark: %v", err)
+		log.Printf("RemoveBookmark: Error removing bookmark: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to remove bookmark"})
 		return
 	}
 
+	log.Printf("RemoveBookmark: Successfully removed bookmark for user %v, news ID: %s", userID, request.NewsId)
 	c.JSON(http.StatusOK, gin.H{"message": "Bookmark removed successfully"})
 }
 

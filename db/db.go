@@ -3,9 +3,11 @@ package db
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"newsAPI/collyan"
 	"newsAPI/gemini"
 	_ "newsAPI/gemini"
+	"newsAPI/models"
 	"strings"
 	"time"
 
@@ -181,28 +183,64 @@ func saveToDBAI(db *sql.DB, question, answer string) error {
 
 // AddBookmark добавляет закладку
 func AddBookmark(db *sql.DB, userID int, articleID string) error {
-	_, err := db.Exec(
-		`INSERT OR IGNORE INTO bookmarks (user_id, article_id) VALUES (?, ?)`,
+	log.Printf("DB AddBookmark: Attempting to add bookmark for user %d, article %s", userID, articleID)
+
+	// Check if bookmark already exists
+	var exists bool
+	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM bookmarks WHERE user_id = ? AND article_id = ?)", userID, articleID).Scan(&exists)
+	if err != nil {
+		log.Printf("DB AddBookmark: Error checking if bookmark exists: %v", err)
+		return err
+	}
+	if exists {
+		log.Printf("DB AddBookmark: Bookmark already exists for user %d, article %s", userID, articleID)
+		return nil
+	}
+
+	result, err := db.Exec(
+		`INSERT INTO bookmarks (user_id, article_id) VALUES (?, ?)`,
 		userID, articleID,
 	)
-	return err
+	if err != nil {
+		log.Printf("DB AddBookmark: Error adding bookmark: %v", err)
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		log.Printf("DB AddBookmark: Error getting rows affected: %v", err)
+		return err
+	}
+
+	log.Printf("DB AddBookmark: Successfully added bookmark for user %d, article %s (rows affected: %d)", userID, articleID, rowsAffected)
+	return nil
 }
 
 // RemoveBookmark удаляет закладку
 func RemoveBookmark(db *sql.DB, userID int, articleID string) error {
+	log.Printf("DB RemoveBookmark: Attempting to remove bookmark for user %d, article %s", userID, articleID)
+
 	_, err := db.Exec(
 		`DELETE FROM bookmarks WHERE user_id = ? AND article_id = ?`,
 		userID, articleID,
 	)
-	return err
+	if err != nil {
+		log.Printf("DB RemoveBookmark: Error removing bookmark: %v", err)
+		return err
+	}
+
+	log.Printf("DB RemoveBookmark: Successfully removed bookmark for user %d, article %s", userID, articleID)
+	return nil
 }
 
 // GetUserBookmarks получает все закладки пользователя
-func GetUserBookmarks(db *sql.DB, userID int) ([]NewsArticle, error) {
+func GetUserBookmarks(db *sql.DB, userID int) ([]models.NewsArticle, error) {
+	log.Printf("DB GetUserBookmarks: Fetching bookmarks for user %d", userID)
+
 	rows, err := db.Query(`
 		SELECT n.article_id, n.title, n.link, n.keywords, n.creator, n.video_url, 
-		       n.description, n.content, n.pub_date, n.image_url, n.source_id, 
-		       n.source_name, n.source_url, n.language, n.country, n.category, n.sentiment
+			   n.description, n.content, n.pub_date, n.image_url, n.source_id, 
+			   n.source_name, n.source_url, n.language, n.country, n.category, n.sentiment
 		FROM bookmarks b
 		JOIN news n ON b.article_id = n.article_id
 		WHERE b.user_id = ?
@@ -210,13 +248,14 @@ func GetUserBookmarks(db *sql.DB, userID int) ([]NewsArticle, error) {
 		userID,
 	)
 	if err != nil {
+		log.Printf("DB GetUserBookmarks: Error querying bookmarks: %v", err)
 		return nil, err
 	}
 	defer rows.Close()
 
-	var bookmarks []NewsArticle
+	var bookmarks []models.NewsArticle
 	for rows.Next() {
-		var article NewsArticle
+		var article models.NewsArticle
 		var keywords, creator, country, category string
 		err := rows.Scan(
 			&article.ArticleID, &article.Title, &article.Link,
@@ -227,18 +266,20 @@ func GetUserBookmarks(db *sql.DB, userID int) ([]NewsArticle, error) {
 			&category, &article.Sentiment,
 		)
 		if err != nil {
+			log.Printf("DB GetUserBookmarks: Error scanning bookmark row: %v", err)
 			return nil, err
 		}
 
 		// Преобразуем строки в массивы
 		article.Keywords = strings.Split(keywords, ", ")
 		article.Creator = strings.Split(creator, ", ")
-		article.Country = strings.Split(country, ", ")
-		article.Category = strings.Split(category, ", ")
+		article.Country = country
+		article.Tags = category
 
 		bookmarks = append(bookmarks, article)
 	}
 
+	log.Printf("DB GetUserBookmarks: Successfully retrieved %d bookmarks for user %d", len(bookmarks), userID)
 	return bookmarks, nil
 }
 
@@ -433,4 +474,60 @@ func GetPublicChannelMessages(db *sql.DB) ([]map[string]interface{}, error) {
 	}
 
 	return messages, nil
+}
+
+// SaveNewsArticle сохраняет статью в базу данных
+func SaveNewsArticle(db *sql.DB, article *models.NewsArticle) error {
+	log.Printf("DB SaveNewsArticle: Attempting to save article %s", article.ArticleID)
+
+	// Prepare the arrays for storage
+	keywords := strings.Join(article.Keywords, ", ")
+	creator := strings.Join(article.Creator, ", ")
+	country := article.Country
+	category := article.Tags
+
+	// Check if article already exists
+	var exists bool
+	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM news WHERE article_id = ?)", article.ArticleID).Scan(&exists)
+	if err != nil {
+		log.Printf("DB SaveNewsArticle: Error checking if article exists: %v", err)
+		return err
+	}
+
+	if exists {
+		// Update existing article
+		_, err = db.Exec(`
+			UPDATE news SET 
+				title = ?, link = ?, keywords = ?, creator = ?, video_url = ?,
+				description = ?, content = ?, pub_date = ?, image_url = ?,
+				source_id = ?, source_name = ?, source_url = ?, language = ?,
+				country = ?, category = ?, sentiment = ?
+			WHERE article_id = ?`,
+			article.Title, article.Link, keywords, creator, article.VideoURL,
+			article.Description, article.Content, article.PubDate, article.ImageURL,
+			article.SourceID, article.SourceName, article.SourceURL, article.Language,
+			country, category, article.Sentiment, article.ArticleID,
+		)
+	} else {
+		// Insert new article
+		_, err = db.Exec(`
+			INSERT INTO news (
+				article_id, title, link, keywords, creator, video_url,
+				description, content, pub_date, image_url, source_id,
+				source_name, source_url, language, country, category, sentiment
+			) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+			article.ArticleID, article.Title, article.Link, keywords, creator, article.VideoURL,
+			article.Description, article.Content, article.PubDate, article.ImageURL,
+			article.SourceID, article.SourceName, article.SourceURL, article.Language,
+			country, category, article.Sentiment,
+		)
+	}
+
+	if err != nil {
+		log.Printf("DB SaveNewsArticle: Error saving article: %v", err)
+		return err
+	}
+
+	log.Printf("DB SaveNewsArticle: Successfully saved article %s", article.ArticleID)
+	return nil
 }
