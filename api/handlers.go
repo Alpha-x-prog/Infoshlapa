@@ -4,7 +4,9 @@ import (
 	"database/sql"
 	"log"
 	"net/http"
+	dbpkg "newsAPI/db"
 	"newsAPI/gemini"
+	"newsAPI/telegram"
 	"strconv"
 	"strings"
 
@@ -130,4 +132,233 @@ func GeminiAsk(c *gin.Context) {
 	responseContent := gemini.GeminiResponse("Напиши кратко ответ на вопрос: " + userQuery)
 	// Отправляем JSON-ответ с полученным ответом
 	c.JSON(http.StatusOK, Response{Content: responseContent})
+}
+
+// AddBookmark добавляет новость в закладки
+func AddBookmark(c *gin.Context, database *sql.DB) {
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	var request struct {
+		NewsID string `json:"newsId" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		return
+	}
+
+	err := dbpkg.AddBookmark(database, userID.(int), request.NewsID)
+	if err != nil {
+		log.Printf("Error adding bookmark: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add bookmark"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Bookmark added successfully"})
+}
+
+// RemoveBookmark удаляет новость из закладок
+func RemoveBookmark(c *gin.Context, database *sql.DB) {
+	log.Printf("RemoveBookmark: Starting to remove bookmark")
+
+	userID, exists := c.Get("user_id")
+	if !exists {
+		log.Printf("RemoveBookmark: User ID not found in context")
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	var request struct {
+		NewsId string `json:"newsId" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&request); err != nil {
+		log.Printf("RemoveBookmark: Invalid request format: %v", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		return
+	}
+	log.Printf("RemoveBookmark: Removing bookmark for user %v, news ID: %s", userID, request.NewsId)
+
+	err := dbpkg.RemoveBookmark(database, userID.(int), request.NewsId)
+	if err != nil {
+		log.Printf("RemoveBookmark: Error removing bookmark: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to remove bookmark"})
+		return
+	}
+
+	log.Printf("RemoveBookmark: Successfully removed bookmark for user %v, news ID: %s", userID, request.NewsId)
+	c.JSON(http.StatusOK, gin.H{"message": "Bookmark removed successfully"})
+}
+
+// GetBookmarks получает список закладок пользователя
+func GetBookmarks(c *gin.Context, database *sql.DB) {
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	bookmarks, err := dbpkg.GetUserBookmarks(database, userID.(int))
+	if err != nil {
+		log.Printf("Error getting bookmarks: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get bookmarks"})
+		return
+	}
+
+	c.JSON(http.StatusOK, bookmarks)
+}
+
+// AddChannel добавляет новый канал для пользователя
+func AddChannel(c *gin.Context, db *sql.DB) {
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(401, gin.H{"success": false, "message": "Unauthorized"})
+		return
+	}
+
+	var req telegram.ChannelRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(400, gin.H{"success": false, "message": "Invalid request format"})
+		return
+	}
+
+	if err := telegram.AddChannel(db, userID.(int), req); err != nil {
+		c.JSON(500, gin.H{"success": false, "message": "Failed to add channel"})
+		return
+	}
+
+	c.JSON(200, gin.H{"success": true, "message": "Channel added successfully"})
+}
+
+// RemoveChannel удаляет канал пользователя
+func RemoveChannel(c *gin.Context, db *sql.DB) {
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(401, gin.H{"success": false, "message": "Unauthorized"})
+		return
+	}
+
+	var req telegram.ChannelRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(400, gin.H{"success": false, "message": "Invalid request format"})
+		return
+	}
+
+	if req.ChannelURL == "" {
+		c.JSON(400, gin.H{"success": false, "message": "Channel URL is required"})
+		return
+	}
+
+	if err := telegram.RemoveChannel(db, userID.(int), req.ChannelURL); err != nil {
+		c.JSON(500, gin.H{"success": false, "message": "Failed to remove channel"})
+		return
+	}
+
+	c.JSON(200, gin.H{"success": true, "message": "Channel removed successfully"})
+}
+
+// GetUserChannels получает все каналы пользователя
+func GetUserChannels(c *gin.Context, db *sql.DB) {
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(401, gin.H{"success": false, "message": "Unauthorized"})
+		return
+	}
+
+	channels, err := telegram.GetUserChannels(db, userID.(int))
+	if err != nil {
+		c.JSON(500, gin.H{"success": false, "message": "Failed to get channels"})
+		return
+	}
+
+	c.JSON(200, gin.H{"success": true, "channels": channels})
+}
+
+// DeleteAllUsers удаляет всех пользователей из базы данных
+func DeleteAllUsers(c *gin.Context, db *sql.DB) {
+	// Проверяем, что пользователь авторизован
+	_, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(401, gin.H{"success": false, "message": "Unauthorized"})
+		return
+	}
+
+	// Здесь можно добавить дополнительную проверку на права администратора
+	// Например, проверка email или специальной роли в базе данных
+
+	_, err := db.Exec("DELETE FROM users")
+	if err != nil {
+		c.JSON(500, gin.H{"success": false, "message": "Failed to delete users"})
+		return
+	}
+
+	c.JSON(200, gin.H{"success": true, "message": "All users have been deleted"})
+}
+
+// GetUserChannelMessages получает все сообщения из каналов пользователя
+func GetUserChannelMessages(c *gin.Context, db *sql.DB) {
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(401, gin.H{"success": false, "message": "Unauthorized"})
+		return
+	}
+
+	messages, err := dbpkg.GetUserChannelMessages(db, userID.(int))
+	if err != nil {
+		log.Printf("Error getting channel messages: %v", err)
+		c.JSON(500, gin.H{"success": false, "message": "Failed to get messages"})
+		return
+	}
+
+	c.JSON(200, gin.H{"success": true, "messages": messages})
+}
+
+// GetUserChannelMessagesByChannel получает сообщения из конкретного канала пользователя
+func GetUserChannelMessagesByChannel(c *gin.Context, db *sql.DB) {
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(401, gin.H{"success": false, "message": "Unauthorized"})
+		return
+	}
+
+	channelUsername := c.Param("username")
+	if channelUsername == "" {
+		c.JSON(400, gin.H{"success": false, "message": "Channel username is required"})
+		return
+	}
+
+	messages, err := dbpkg.GetUserChannelMessagesByChannel(db, userID.(int), channelUsername)
+	if err != nil {
+		log.Printf("Error getting channel messages: %v", err)
+		c.JSON(500, gin.H{"success": false, "message": "Failed to get messages"})
+		return
+	}
+
+	c.JSON(200, gin.H{"success": true, "messages": messages})
+}
+
+// UpdateGeminiSettings просто возвращает полученные данные
+func UpdateGeminiSettings(c *gin.Context, _ *sql.DB) {
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(401, gin.H{"success": false, "message": "Unauthorized"})
+		return
+	}
+
+	var data map[string]interface{}
+	if err := c.ShouldBindJSON(&data); err != nil {
+		c.JSON(400, gin.H{"success": false, "message": "Invalid request format"})
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"success": true,
+		"message": "Data received successfully",
+		"user_id": userID,
+		"data":    data,
+	})
 }

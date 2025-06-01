@@ -15,6 +15,14 @@ var jwtKey []byte
 
 func init() {
 	jwtKey = []byte(os.Getenv("JWT_SECRET_KEY"))
+	if len(jwtKey) == 0 {
+		jwtKey = []byte("your-256-bit-secret") // Fallback secret key
+	}
+}
+
+// GetJWTKey returns the JWT secret key
+func GetJWTKey() []byte {
+	return jwtKey
 }
 
 type Claims struct {
@@ -33,7 +41,7 @@ type LoginRequest struct {
 }
 
 func generateJWT(userID int) (string, error) {
-	expirationTime := time.Now().Add(24 * time.Hour)
+	expirationTime := time.Now().Add(168 * time.Hour) // 7 дней
 
 	claims := &Claims{
 		UserID: userID,
@@ -101,11 +109,13 @@ func RegisterHandler(c *gin.Context, db *sql.DB) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"token": token,
+		"success": true,
+		"token":   token,
 		"user": gin.H{
 			"id":    userID,
 			"email": req.Email,
 		},
+		"message": "Пользователь успешно зарегистрирован",
 	})
 }
 
@@ -117,19 +127,23 @@ func LoginHandler(c *gin.Context, db *sql.DB) {
 		return
 	}
 
+	// Проверяем существование пользователя
 	var userID int
 	var hashedPassword string
-	err := db.QueryRow("SELECT id, password FROM users WHERE email = ?", req.Email).
-		Scan(&userID, &hashedPassword)
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Неверный email или пароль"})
+	err := db.QueryRow("SELECT id, password FROM users WHERE email = ?", req.Email).Scan(&userID, &hashedPassword)
+
+	if err == sql.ErrNoRows {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Пользователь не найден"})
+		return
+	} else if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при проверке пользователя"})
 		return
 	}
 
 	// Проверяем пароль
 	err = bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(req.Password))
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Неверный email или пароль"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Неверный пароль"})
 		return
 	}
 
@@ -141,10 +155,89 @@ func LoginHandler(c *gin.Context, db *sql.DB) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"token":   token,
+		"user": gin.H{
+			"id":    userID,
+			"email": req.Email,
+		},
+		"message": "Успешная авторизация",
+	})
+}
+
+// ProfileAuthHandler обрабатывает авторизацию через профиль
+func ProfileAuthHandler(c *gin.Context, db *sql.DB) {
+	var req LoginRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Неверный формат данных"})
+		return
+	}
+
+	// Проверяем существование пользователя
+	var userID int
+	var hashedPassword string
+	err := db.QueryRow("SELECT id, password FROM users WHERE email = ?", req.Email).Scan(&userID, &hashedPassword)
+
+	if err == sql.ErrNoRows {
+		// Пользователь не найден - создаем нового
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при хешировании пароля"})
+			return
+		}
+
+		result, err := db.Exec("INSERT INTO users (email, password) VALUES (?, ?)", req.Email, string(hashedPassword))
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при создании пользователя"})
+			return
+		}
+
+		newUserID, err := result.LastInsertId()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при получении ID пользователя"})
+			return
+		}
+
+		// Генерируем JWT токен для нового пользователя
+		token, err := generateJWT(int(newUserID))
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при генерации токена"})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"token": token,
+			"user": gin.H{
+				"id": newUserID,
+			},
+			"message": "Новый пользователь успешно создан",
+		})
+		return
+	} else if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при проверке пользователя"})
+		return
+	}
+
+	// Пользователь найден - проверяем пароль
+	err = bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(req.Password))
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Неверный пароль"})
+		return
+	}
+
+	// Генерируем JWT токен для существующего пользователя
+	token, err := generateJWT(userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при генерации токена"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
 		"token": token,
 		"user": gin.H{
 			"id": userID,
 		},
+		"message": "Успешная авторизация",
 	})
 }
 
