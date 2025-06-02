@@ -20,8 +20,22 @@ func AddChannel(dbConn *sql.DB, userID int, req ChannelRequest) error {
 		channelUsername = strings.TrimPrefix(req.ChannelURL, "t.me/")
 	}
 
+	// Запускаем Python скрипт для получения информации о канале
+	cmd := exec.Command("python", "telegram/scripts/get_channel_info.py", req.ChannelURL)
+	output, err := cmd.Output()
+	if err != nil {
+		log.Printf("Error getting channel info: %v", err)
+		return err
+	}
+
+	// Получаем название канала из вывода скрипта
+	channelTitle := strings.TrimSpace(string(output))
+	if channelTitle == "" {
+		channelTitle = channelUsername // Используем username как fallback
+	}
+
 	// Сначала сохраняем канал в таблицу user_channels
-	err := db.AddUserChannel(dbConn, userID, req.ChannelURL, channelUsername, channelUsername)
+	err = db.AddUserChannel(dbConn, userID, req.ChannelURL, channelUsername, channelTitle)
 	if err != nil {
 		log.Printf("Error saving channel to user_channels: %v", err)
 		return err
@@ -38,14 +52,14 @@ func AddChannel(dbConn *sql.DB, userID int, req ChannelRequest) error {
 	// Если канала нет в telegram_channels, добавляем его
 	if !exists {
 		_, err = dbConn.Exec("INSERT INTO telegram_channels (channel_username, channel_title, last_message_id, is_active) VALUES (?, ?, ?, ?)",
-			channelUsername, channelUsername, 0, true)
+			channelUsername, channelTitle, 0, true)
 		if err != nil {
 			log.Printf("Error adding channel to telegram_channels: %v", err)
 			return err
 		}
 
 		// Запускаем Python скрипт для обработки канала
-		cmd := exec.Command("python", "telegram/scripts/add_channel.py", req.ChannelURL)
+		cmd = exec.Command("python", "telegram/scripts/add_channel.py", req.ChannelURL)
 		if err := cmd.Run(); err != nil {
 			log.Printf("Error running Python script: %v", err)
 			// В случае ошибки удаляем канал из обеих таблиц

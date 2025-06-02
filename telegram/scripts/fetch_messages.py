@@ -79,7 +79,7 @@ def get_gemini_summary(text):
         
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={api_key}"
         
-        prompt = f"Сделай краткое изложение следующего текста в 3-4 предложения: {text}"
+        prompt = f"Сделай краткое изложение следующего текста в 2-3 предложения, сохраняя основной смысл:\n\n{text}"
         
         payload = {
             "contents": [{

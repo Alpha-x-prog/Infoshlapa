@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 )
 
 const apiURLGemini = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
@@ -37,6 +38,12 @@ type Response struct {
 }
 
 func GeminiResponse(question string) string {
+	// Проверяем, что текст не пустой
+	if strings.TrimSpace(question) == "" {
+		fmt.Println("Получен пустой текст для обработки")
+		return "error"
+	}
+
 	// Получаем API ключ из переменных окружения
 	apiKeyGemini := os.Getenv("GEMINI_API_KEY")
 	if apiKeyGemini == "" {
@@ -57,6 +64,9 @@ func GeminiResponse(question string) string {
 	// Создаём клиента с прокси
 	client := &http.Client{Transport: transport}
 
+	// Формируем промпт для Gemini
+	prompt := fmt.Sprintf("Проанализируй следующий текст и сделай его краткое описание в 2-3 предложения:\n\n%s", question)
+
 	// Создаём запрос
 	reqBody := RequestBody{
 		Contents: []struct {
@@ -68,15 +78,25 @@ func GeminiResponse(question string) string {
 				Parts: []struct {
 					Text string `json:"text"`
 				}{
-					{Text: question},
+					{Text: prompt},
 				},
 			},
 		},
 	}
 
 	// Кодируем в JSON
-	data, _ := json.Marshal(reqBody)
-	req, _ := http.NewRequest("POST", apiURLGemini+"?key="+apiKeyGemini, bytes.NewBuffer(data))
+	data, err := json.Marshal(reqBody)
+	if err != nil {
+		fmt.Println("Ошибка кодирования JSON:", err)
+		return "error"
+	}
+
+	// Создаём HTTP запрос
+	req, err := http.NewRequest("POST", apiURLGemini+"?key="+apiKeyGemini, bytes.NewBuffer(data))
+	if err != nil {
+		fmt.Println("Ошибка создания запроса:", err)
+		return "error"
+	}
 	req.Header.Set("Content-Type", "application/json")
 
 	// Отправляем запрос
@@ -88,7 +108,13 @@ func GeminiResponse(question string) string {
 	defer resp.Body.Close()
 
 	// Читаем ответ
-	body, _ := ioutil.ReadAll(resp.Body)
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println("Ошибка чтения ответа:", err)
+		return "error"
+	}
+
+	// Логируем ответ для отладки
 	fmt.Println("Ответ от API:", string(body))
 
 	var result Response

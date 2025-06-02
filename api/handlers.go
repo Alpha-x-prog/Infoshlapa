@@ -127,9 +127,22 @@ func GeminiAsk(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Ошибка декодирования запроса"})
 		return
 	}
-	userQuery := req.Prompt
+
+	// Проверяем, что текст не пустой
+	if req.Prompt == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Текст для обработки не может быть пустым"})
+		return
+	}
+
 	// Получаем ответ от функции geminiResponse
-	responseContent := gemini.GeminiResponse("Напиши кратко ответ на вопрос: " + userQuery)
+	responseContent := gemini.GeminiResponse(req.Prompt)
+
+	// Проверяем, не вернулась ли ошибка
+	if responseContent == "error" {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при обработке запроса"})
+		return
+	}
+
 	// Отправляем JSON-ответ с полученным ответом
 	c.JSON(http.StatusOK, Response{Content: responseContent})
 }
