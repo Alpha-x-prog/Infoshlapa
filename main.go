@@ -4,18 +4,18 @@ import (
 	"fmt"
 	"log"
 	"newsAPI/api"
+	"newsAPI/config"
 	"newsAPI/db"
 	"newsAPI/handlers"
 	"newsAPI/middleware"
 
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 )
 
 func main() {
-	// Загружаем переменные окружения из .env файла
-	if err := godotenv.Load(); err != nil {
-		log.Fatal("Error loading .env file")
+	// Инициализация конфигурации
+	if err := config.Init(); err != nil {
+		log.Fatal("Error initializing config:", err)
 	}
 
 	// Инициализация подключения к БД
@@ -120,18 +120,18 @@ func main() {
 		}
 	}
 
-	// Раздача статических файлов из папки shlapa/dist
-	router.Static("/js", "./shlapa/dist/js")
-	router.Static("/css", "./shlapa/dist/css")
-	router.StaticFile("/", "./shlapa/dist/index.html")
-	router.StaticFile("/favicon.ico", "./shlapa/dist/favicon.ico")
+	// Раздача статических файлов
+	router.Static("/js", config.AppConfig.DistPath+"/js")
+	router.Static("/css", config.AppConfig.DistPath+"/css")
+	router.StaticFile("/", config.AppConfig.DistPath+"/index.html")
+	router.StaticFile("/favicon.ico", config.AppConfig.DistPath+"/favicon.ico")
 
 	// Обработка всех остальных маршрутов для SPA
 	router.NoRoute(func(c *gin.Context) {
-		c.File("./shlapa/dist/index.html")
+		c.File(config.AppConfig.DistPath + "/index.html")
 	})
 
 	// Запуск сервера
-	log.Println("Server starting on http://localhost:8080")
-	router.Run(":8080")
+	log.Printf("Server starting on http://localhost:%s", config.AppConfig.Port)
+	router.Run(":" + config.AppConfig.Port)
 }

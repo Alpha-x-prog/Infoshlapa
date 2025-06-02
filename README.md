@@ -1,246 +1,205 @@
-# News API Documentation
+# News API
 
-## Аутентификация
+Сервис для агрегации новостей с поддержкой Telegram-каналов и AI-анализа.
 
-### Регистрация нового пользователя
+## Содержание
+
+- [Требования](#требования)
+- [Установка](#установка)
+- [Конфигурация](#конфигурация)
+- [Запуск](#запуск)
+- [API Документация](#api-документация)
+- [Структура проекта](#структура-проекта)
+- [Разработка](#разработка)
+
+## Требования
+
+- Go 1.24.0 или выше
+- SQLite3
+- Node.js 16+ (для фронтенда)
+- Telegram Bot Token
+
+## Установка
+
+1. Клонируйте репозиторий:
 ```bash
-curl -X POST http://localhost:8080/api/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "test@example.com",
-    "password": "your_password"
-  }'
+git clone [URL репозитория]
+cd newsAPI
 ```
 
-Ответ:
-```json
+2. Установите зависимости Go:
+```bash
+go mod download
+```
+
+3. Установите зависимости фронтенда:
+```bash
+cd shlapa
+npm install
+```
+
+## Конфигурация
+
+1. Создайте файл `.env` в корневой директории:
+```env
+# Database configuration
+DB_PATH=news.db
+
+# Server configuration
+PORT=8080
+
+# Telegram Bot configuration
+TELEGRAM_BOT_TOKEN=your_bot_token_here
+
+# Paths (relative to project root)
+STATIC_PATH=static
+DIST_PATH=shlapa/dist
+```
+
+## Запуск
+
+1. Запуск бэкенда:
+```bash
+go run main.go
+```
+
+2. Запуск фронтенда (в режиме разработки):
+```bash
+cd shlapa
+npm run serve
+```
+
+3. Сборка фронтенда:
+```bash
+cd shlapa
+npm run build
+```
+
+## API Документация
+
+### Аутентификация
+
+#### Регистрация
+```bash
+POST /api/register
+Content-Type: application/json
+
 {
-    "success": true,
-    "token": "YOUR_JWT_TOKEN",
-    "user": {
-        "id": 1,
-        "email": "test@example.com"
-    },
-    "message": "Пользователь успешно зарегистрирован"
+    "email": "user@example.com",
+    "password": "password"
 }
 ```
 
-### Вход пользователя
+#### Вход
 ```bash
-curl -X POST http://localhost:8080/api/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "test@example.com",
-    "password": "your_password"
-  }'
-```
+POST /api/login
+Content-Type: application/json
 
-Ответ:
-```json
 {
-    "success": true,
-    "token": "YOUR_JWT_TOKEN",
-    "user": {
-        "id": 1,
-        "email": "test@example.com"
-    },
-    "message": "Успешная авторизация"
+    "email": "user@example.com",
+    "password": "password"
 }
 ```
 
-## Новости
+### Новости
 
-### Получение списка новостей
+#### Получение новостей
 ```bash
-# Базовый запрос
-curl -X GET http://localhost:8080/api/news
-
-# С параметрами
-curl -X GET "http://localhost:8080/api/news?category=technology&offset=0"
+GET /api/news
+GET /api/news?category=technology&offset=0
 ```
 
-Ответ:
-```json
-[
-    {
-        "article_id": "123",
-        "title": "Example News",
-        "link": "https://example.com/news",
-        "keywords": ["tech", "news"],
-        "creator": ["John Doe"],
-        "video_url": "",
-        "description": "News description",
-        "content": "Full content",
-        "publishedAt": "2024-03-21T10:00:00Z",
-        "urlToImage": "https://example.com/image.jpg",
-        "source_id": "example",
-        "source_name": "Example News",
-        "url": "https://example.com",
-        "language": "en",
-        "country": "US",
-        "tags": "technology",
-        "sentiment": "positive"
-    }
-]
-```
+### Закладки
 
-## Закладки
-
-### Добавление закладки
+#### Добавление закладки
 ```bash
-curl -X POST http://localhost:8080/api/protected/bookmarks \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
+POST /api/protected/bookmarks
+Authorization: Bearer YOUR_JWT_TOKEN
+Content-Type: application/json
+
+{
     "newsId": "123"
-  }'
-```
-
-Ответ:
-```json
-{
-    "message": "Bookmark added successfully"
 }
 ```
 
-### Получение закладок
+#### Получение закладок
 ```bash
-curl -X GET http://localhost:8080/api/protected/bookmarks \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+GET /api/protected/bookmarks
+Authorization: Bearer YOUR_JWT_TOKEN
 ```
 
-Ответ:
-```json
-[
-    {
-        "article_id": "123",
-        "title": "Example News",
-        "link": "https://example.com/news",
-        "keywords": ["tech", "news"],
-        "creator": ["John Doe"],
-        "video_url": "",
-        "description": "News description",
-        "content": "Full content",
-        "publishedAt": "2024-03-21T10:00:00Z",
-        "urlToImage": "https://example.com/image.jpg",
-        "source_id": "example",
-        "source_name": "Example News",
-        "url": "https://example.com",
-        "language": "en",
-        "country": "US",
-        "tags": "technology",
-        "sentiment": "positive"
-    }
-]
-```
-
-### Удаление закладки
+#### Удаление закладки
 ```bash
-curl -X DELETE http://localhost:8080/api/protected/bookmarks \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
+DELETE /api/protected/bookmarks
+Authorization: Bearer YOUR_JWT_TOKEN
+Content-Type: application/json
+
+{
     "newsId": "123"
-  }'
-```
-
-Ответ:
-```json
-{
-    "message": "Bookmark removed successfully"
 }
 ```
 
-## Telegram Каналы
+### Telegram Каналы
 
-### Добавление канала
+#### Добавление канала
 ```bash
-curl -X POST http://localhost:8080/api/protected/channels \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "channel_url": "https://t.me/example_channel",
+POST /api/protected/channels
+Authorization: Bearer YOUR_JWT_TOKEN
+Content-Type: application/json
+
+{
+    "channel_url": "https://t.me/example",
     "channel_name": "Example Channel"
-  }'
-```
-
-Ответ:
-```json
-{
-    "success": true,
-    "message": "Channel added successfully"
 }
 ```
 
-### Получение каналов
+#### Получение каналов
 ```bash
-curl -X GET http://localhost:8080/api/protected/channels \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+GET /api/protected/channels
+Authorization: Bearer YOUR_JWT_TOKEN
 ```
 
-Ответ:
-```json
-{
-    "success": true,
-    "channels": [
-        {
-            "url": "https://t.me/example_channel",
-            "name": "Example Channel",
-            "created_at": "2024-03-21T10:30:00Z"
-        }
-    ]
-}
-```
-
-### Удаление канала
+#### Удаление канала
 ```bash
-curl -X DELETE "http://localhost:8080/api/protected/channels?channel_url=https://t.me/example_channel" \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+DELETE /api/protected/channels?channel_url=https://t.me/example
+Authorization: Bearer YOUR_JWT_TOKEN
 ```
 
-Ответ:
-```json
-{
-    "success": true,
-    "message": "Channel removed successfully"
-}
-```
+### AI Запросы
 
-## AI Запросы
-
-### Запрос к Gemini AI
+#### Запрос к Gemini AI
 ```bash
-curl -X POST http://localhost:8080/api/ask \
-  -H "Content-Type: application/json" \
-  -d '{
-    "prompt": "What is the latest news about technology?"
-  }'
-```
+POST /api/ask
+Content-Type: application/json
 
-Ответ:
-```json
 {
-    "content": "AI response here..."
+    "prompt": "Your question here"
 }
 ```
 
-## Административные функции
+## Структура проекта
 
-### Удаление всех пользователей
-```bash
-curl -X DELETE http://localhost:8080/api/protected/users/all \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+newsAPI/
+├── api/            # API endpoints
+├── config/         # Конфигурация приложения
+├── db/            # Работа с базой данных
+├── handlers/      # Обработчики запросов
+├── middleware/    # Промежуточное ПО
+├── parser/        # Парсеры данных
+├── telegram/      # Интеграция с Telegram
+├── gemini/        # Интеграция с Gemini AI
+├── collyan/       # Веб-скрапинг
+├── static/        # Статические файлы
+├── shlapa/        # Фронтенд (Vue.js)
+├── image/         # Изображения
+├── scripts/       # Скрипты
+└── cmd/           # Исполняемые команды
 ```
 
-Ответ:
-```json
-{
-    "success": true,
-    "message": "All users have been deleted"
-}
-```
+## Разработка
 
-## Коды ошибок
+### Коды ошибок
 
 - 200: Успешный запрос
 - 400: Неверный формат данных
@@ -249,40 +208,18 @@ curl -X DELETE http://localhost:8080/api/protected/users/all \
 - 404: Ресурс не найден
 - 500: Внутренняя ошибка сервера
 
-## Примеры ошибок
+### Логирование
 
-### Неверный формат данных
-```json
-{
-    "error": "Неверный формат данных"
-}
+Логи приложения записываются в:
+- `telegram_bot.log` - логи Telegram бота
+- Стандартный вывод для остальных логов
+
+### Тестирование
+
+```bash
+# Запуск тестов
+go test ./...
+
+# Запуск тестов с покрытием
+go test -cover ./...
 ```
-
-### Пользователь не авторизован
-```json
-{
-    "error": "Unauthorized"
-}
-```
-
-### Пользователь уже существует
-```json
-{
-    "error": "Пользователь с таким email уже существует"
-}
-```
-
-### Неверный пароль
-```json
-{
-    "error": "Неверный пароль"
-}
-```
-
-## Примечания
-
-1. Все защищенные маршруты требуют JWT токен в заголовке Authorization
-2. Токен получается при регистрации или входе
-3. Токен действителен 7 дней
-4. Для всех запросов используется формат JSON
-5. Все даты возвращаются в формате ISO 8601

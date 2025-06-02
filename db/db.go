@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"newsAPI/collyan"
+	"newsAPI/config"
 	"newsAPI/gemini"
 	_ "newsAPI/gemini"
 	"strings"
@@ -37,7 +38,7 @@ type NewsArticle struct {
 
 // Инициализация БД
 func InitDB() (*sql.DB, error) {
-	db, err := sql.Open("sqlite3", dbFile)
+	db, err := sql.Open("sqlite3", config.AppConfig.DBPath)
 	if err != nil {
 		return nil, err
 	}
