@@ -7,7 +7,6 @@ import (
 	"newsAPI/collyan"
 	"newsAPI/gemini"
 	_ "newsAPI/gemini"
-	"newsAPI/models"
 	"strings"
 	"time"
 
@@ -234,7 +233,7 @@ func RemoveBookmark(db *sql.DB, userID int, articleID string) error {
 }
 
 // GetUserBookmarks получает все закладки пользователя
-func GetUserBookmarks(db *sql.DB, userID int) ([]models.NewsArticle, error) {
+func GetUserBookmarks(db *sql.DB, userID int) ([]NewsArticle, error) {
 	log.Printf("DB GetUserBookmarks: Fetching bookmarks for user %d", userID)
 
 	rows, err := db.Query(`
@@ -253,9 +252,9 @@ func GetUserBookmarks(db *sql.DB, userID int) ([]models.NewsArticle, error) {
 	}
 	defer rows.Close()
 
-	var bookmarks []models.NewsArticle
+	var bookmarks []NewsArticle
 	for rows.Next() {
-		var article models.NewsArticle
+		var article NewsArticle
 		var keywords, creator, country, category string
 		err := rows.Scan(
 			&article.ArticleID, &article.Title, &article.Link,
@@ -273,8 +272,8 @@ func GetUserBookmarks(db *sql.DB, userID int) ([]models.NewsArticle, error) {
 		// Преобразуем строки в массивы
 		article.Keywords = strings.Split(keywords, ", ")
 		article.Creator = strings.Split(creator, ", ")
-		article.Country = country
-		article.Tags = category
+		article.Country = strings.Split(country, ", ")
+		article.Category = strings.Split(category, ", ")
 
 		bookmarks = append(bookmarks, article)
 	}
@@ -477,14 +476,14 @@ func GetPublicChannelMessages(db *sql.DB) ([]map[string]interface{}, error) {
 }
 
 // SaveNewsArticle сохраняет статью в базу данных
-func SaveNewsArticle(db *sql.DB, article *models.NewsArticle) error {
+func SaveNewsArticle(db *sql.DB, article *NewsArticle) error {
 	log.Printf("DB SaveNewsArticle: Attempting to save article %s", article.ArticleID)
 
 	// Prepare the arrays for storage
 	keywords := strings.Join(article.Keywords, ", ")
 	creator := strings.Join(article.Creator, ", ")
-	country := article.Country
-	category := article.Tags
+	country := strings.Join(article.Country, ", ")
+	category := strings.Join(article.Category, ", ")
 
 	// Check if article already exists
 	var exists bool

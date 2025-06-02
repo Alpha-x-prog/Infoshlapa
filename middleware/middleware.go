@@ -4,8 +4,7 @@ import (
 	"log"
 	"net/http"
 	"newsAPI/api"
-
-	"newsAPI/api"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
@@ -36,11 +35,6 @@ func CORSMiddleware() gin.HandlerFunc {
 
 		c.Next()
 	}
-}
-
-type Claims struct {
-	UserID int `json:"user_id"`
-	jwt.RegisteredClaims
 }
 
 // AuthMiddleware проверяет JWT токен

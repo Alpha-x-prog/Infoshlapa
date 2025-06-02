@@ -25,11 +25,6 @@ func GetJWTKey() []byte {
 	return jwtKey
 }
 
-// GetJWTKey returns the JWT key for token validation
-func GetJWTKey() []byte {
-	return jwtKey
-}
-
 type Claims struct {
 	UserID int `json:"user_id"`
 	jwt.RegisteredClaims
