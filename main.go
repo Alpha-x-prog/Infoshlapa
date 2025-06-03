@@ -7,6 +7,7 @@ import (
 	"newsAPI/db"
 	"newsAPI/handlers"
 	"newsAPI/middleware"
+	"newsAPI/telegram"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -28,6 +29,9 @@ func main() {
 
 	// Инициализация обработчиков
 	handlers.InitDB(database)
+
+	// Запускаем фоновый процесс получения сообщений
+	telegram.StartMessageFetcher()
 
 	// Создаем роутер
 	router := gin.Default()

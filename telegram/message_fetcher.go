@@ -8,7 +8,7 @@ import (
 
 // StartMessageFetcher запускает фоновый процесс получения сообщений
 func StartMessageFetcher() {
-	ticker := time.NewTicker(15 * time.Minute)
+	ticker := time.NewTicker(10 * time.Minute)
 	go func() {
 		for {
 			select {
