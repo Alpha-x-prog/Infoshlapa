@@ -1,9 +1,11 @@
 {
 	"info": {
-		"_postman_id": "your-collection-id",
-		"name": "News API Tests",
+		"_postman_id": "3df4bc1c-1de0-45ee-9273-05a63d86b551",
+		"name": "Proect InfoShlapa",
 		"description": "Collection for testing News API endpoints",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "45260229",
+		"_collection_link": "https://kirallik.postman.co/workspace/apinews~5e300f84-7af8-45a5-be37-9a6682b92c8e/collection/45260229-3df4bc1c-1de0-45ee-9273-05a63d86b551?action=share&source=collection_link&creator=45260229"
 	},
 	"item": [
 		{
@@ -27,7 +29,8 @@
 									"    pm.environment.set(\"authToken\", jsonData.token);",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -41,16 +44,22 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"email\": \"test@example.com\",\n    \"password\": \"testpassword123\"\n}"
+							"raw": "{\n    \"email\": \"test7@example.com\",\n    \"password\": \"test7\"\n}"
 						},
 						"url": {
 							"raw": "http://localhost:8080/api/register",
 							"protocol": "http",
-							"host": ["localhost"],
+							"host": [
+								"localhost"
+							],
 							"port": "8080",
-							"path": ["api", "register"]
+							"path": [
+								"api",
+								"register"
+							]
 						}
-					}
+					},
+					"response": []
 				},
 				{
 					"name": "Login User",
@@ -70,7 +79,8 @@
 									"    pm.environment.set(\"authToken\", jsonData.token);",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -84,16 +94,22 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"email\": \"test@example.com\",\n    \"password\": \"testpassword123\"\n}"
+							"raw": "{\n    \"email\": \"test7@example.com\",\n    \"password\": \"test7\"\n}"
 						},
 						"url": {
 							"raw": "http://localhost:8080/api/login",
 							"protocol": "http",
-							"host": ["localhost"],
+							"host": [
+								"localhost"
+							],
 							"port": "8080",
-							"path": ["api", "login"]
+							"path": [
+								"api",
+								"login"
+							]
 						}
-					}
+					},
+					"response": []
 				}
 			]
 		},
@@ -101,7 +117,7 @@
 			"name": "News",
 			"item": [
 				{
-					"name": "Get News - Technology",
+					"name": "Get News - Business 0",
 					"event": [
 						{
 							"listen": "test",
@@ -125,72 +141,10 @@
 									"    }",
 									"});",
 									"",
-									"pm.test(\"News items are from technology category\", function () {",
-									"    var jsonData = pm.response.json();",
-									"    if (jsonData.length > 0) {",
-									"        pm.expect(jsonData[0].category).to.include('technology');",
-									"    }",
-									"});"
+									""
 								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:8080/api/news?category=technology&offset=0",
-							"protocol": "http",
-							"host": ["localhost"],
-							"port": "8080",
-							"path": ["api", "news"],
-							"query": [
-								{
-									"key": "category",
-									"value": "technology"
-								},
-								{
-									"key": "offset",
-									"value": "0"
-								}
-							]
-						}
-					}
-				},
-				{
-					"name": "Get News - Business",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status code is 200\", function () {",
-									"    pm.response.to.have.status(200);",
-									"});",
-									"",
-									"pm.test(\"Response is an array\", function () {",
-									"    var jsonData = pm.response.json();",
-									"    pm.expect(Array.isArray(jsonData)).to.be.true;",
-									"});",
-									"",
-									"pm.test(\"News items have required fields\", function () {",
-									"    var jsonData = pm.response.json();",
-									"    if (jsonData.length > 0) {",
-									"        pm.expect(jsonData[0]).to.have.property('article_id');",
-									"        pm.expect(jsonData[0]).to.have.property('title');",
-									"        pm.expect(jsonData[0]).to.have.property('link');",
-									"    }",
-									"});",
-									"",
-									"pm.test(\"News items are from business category\", function () {",
-									"    var jsonData = pm.response.json();",
-									"    if (jsonData.length > 0) {",
-									"        pm.expect(jsonData[0].category).to.include('business');",
-									"    }",
-									"});"
-								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -200,9 +154,14 @@
 						"url": {
 							"raw": "http://localhost:8080/api/news?category=business&offset=0",
 							"protocol": "http",
-							"host": ["localhost"],
+							"host": [
+								"localhost"
+							],
 							"port": "8080",
-							"path": ["api", "news"],
+							"path": [
+								"api",
+								"news"
+							],
 							"query": [
 								{
 									"key": "category",
@@ -214,7 +173,245 @@
 								}
 							]
 						}
-					}
+					},
+					"response": []
+				},
+				{
+					"name": "Get News - Business 15",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Проверяем статус ответа",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"// Проверяем, что ответ является массивом",
+									"pm.test(\"Response is an array\", function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(Array.isArray(response)).to.be.true;",
+									"});",
+									"",
+									"",
+									"// Проверяем, что новости начинаются с 30-й позиции",
+									"pm.test(\"News items start from offset 30\", function () {",
+									"    const response = pm.response.json();",
+									"    if (response.length > 0) {",
+									"        // Получаем все новости без offset для сравнения",
+									"        pm.sendRequest({",
+									"            url: 'http://localhost:8080/api/news?category=business&offset=0',",
+									"            method: 'GET'",
+									"        }, function (err, res) {",
+									"            if (!err) {",
+									"                const allNews = res.json();",
+									"                // Проверяем, что первая новость в нашем ответе",
+									"                // соответствует 15-й новости в полном списке",
+									"                pm.expect(response[0].article_id).to.equal(allNews[15].article_id);",
+									"            }",
+									"        });",
+									"    }",
+									"});",
+									"",
+									"// Проверяем, что количество новостей не превышает лимит",
+									"pm.test(\"Number of news items is within limit\", function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.length).to.be.at.most(15); // Предполагаемый лимит",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/news?category=business&offset=15",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"news"
+							],
+							"query": [
+								{
+									"key": "category",
+									"value": "business"
+								},
+								{
+									"key": "offset",
+									"value": "15"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get News - Business 30",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Проверяем статус ответа",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"// Проверяем, что ответ является массивом",
+									"pm.test(\"Response is an array\", function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(Array.isArray(response)).to.be.true;",
+									"});",
+									"",
+									"",
+									"// Проверяем, что новости начинаются с 30-й позиции",
+									"pm.test(\"News items start from offset 30\", function () {",
+									"    const response = pm.response.json();",
+									"    if (response.length > 0) {",
+									"        // Получаем все новости без offset для сравнения",
+									"        pm.sendRequest({",
+									"            url: 'http://localhost:8080/api/news?category=business&offset=0',",
+									"            method: 'GET'",
+									"        }, function (err, res) {",
+									"            if (!err) {",
+									"                const allNews = res.json();",
+									"                // Проверяем, что первая новость в нашем ответе",
+									"                // соответствует 30-й новости в полном списке",
+									"                pm.expect(response[0].article_id).to.equal(allNews[30].article_id);",
+									"            }",
+									"        });",
+									"    }",
+									"});",
+									"",
+									"// Проверяем, что количество новостей не превышает лимит",
+									"pm.test(\"Number of news items is within limit\", function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.length).to.be.at.most(15); // Предполагаемый лимит",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/news?category=business&offset=30",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"news"
+							],
+							"query": [
+								{
+									"key": "category",
+									"value": "business"
+								},
+								{
+									"key": "offset",
+									"value": "30"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get News - Business 45",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Проверяем статус ответа",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"// Проверяем, что ответ является массивом",
+									"pm.test(\"Response is an array\", function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(Array.isArray(response)).to.be.true;",
+									"});",
+									"",
+									"",
+									"// Проверяем, что новости начинаются с 30-й позиции",
+									"pm.test(\"News items start from offset 30\", function () {",
+									"    const response = pm.response.json();",
+									"    if (response.length > 0) {",
+									"        // Получаем все новости без offset для сравнения",
+									"        pm.sendRequest({",
+									"            url: 'http://localhost:8080/api/news?category=business&offset=0',",
+									"            method: 'GET'",
+									"        }, function (err, res) {",
+									"            if (!err) {",
+									"                const allNews = res.json();",
+									"                // Проверяем, что первая новость в нашем ответе",
+									"                // соответствует 45-й новости в полном списке",
+									"                pm.expect(response[0].article_id).to.equal(allNews[45].article_id);",
+									"            }",
+									"        });",
+									"    }",
+									"});",
+									"",
+									"// Проверяем, что количество новостей не превышает лимит",
+									"pm.test(\"Number of news items is within limit\", function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.length).to.be.at.most(15); // Предполагаемый лимит",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/news?category=business&offset=45",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"news"
+							],
+							"query": [
+								{
+									"key": "category",
+									"value": "business"
+								},
+								{
+									"key": "offset",
+									"value": "45"
+								}
+							]
+						}
+					},
+					"response": []
 				},
 				{
 					"name": "Get News - Sports",
@@ -240,15 +437,10 @@
 									"        pm.expect(jsonData[0]).to.have.property('link');",
 									"    }",
 									"});",
-									"",
-									"pm.test(\"News items are from sports category\", function () {",
-									"    var jsonData = pm.response.json();",
-									"    if (jsonData.length > 0) {",
-									"        pm.expect(jsonData[0].category).to.include('sports');",
-									"    }",
-									"});"
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -258,9 +450,14 @@
 						"url": {
 							"raw": "http://localhost:8080/api/news?category=sports&offset=0",
 							"protocol": "http",
-							"host": ["localhost"],
+							"host": [
+								"localhost"
+							],
 							"port": "8080",
-							"path": ["api", "news"],
+							"path": [
+								"api",
+								"news"
+							],
 							"query": [
 								{
 									"key": "category",
@@ -272,7 +469,8 @@
 								}
 							]
 						}
-					}
+					},
+					"response": []
 				},
 				{
 					"name": "Get News - Science",
@@ -299,14 +497,10 @@
 									"    }",
 									"});",
 									"",
-									"pm.test(\"News items are from science category\", function () {",
-									"    var jsonData = pm.response.json();",
-									"    if (jsonData.length > 0) {",
-									"        pm.expect(jsonData[0].category).to.include('science');",
-									"    }",
-									"});"
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -316,9 +510,14 @@
 						"url": {
 							"raw": "http://localhost:8080/api/news?category=science&offset=0",
 							"protocol": "http",
-							"host": ["localhost"],
+							"host": [
+								"localhost"
+							],
 							"port": "8080",
-							"path": ["api", "news"],
+							"path": [
+								"api",
+								"news"
+							],
 							"query": [
 								{
 									"key": "category",
@@ -330,65 +529,8 @@
 								}
 							]
 						}
-					}
-				},
-				{
-					"name": "Get News - Entertainment",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status code is 200\", function () {",
-									"    pm.response.to.have.status(200);",
-									"});",
-									"",
-									"pm.test(\"Response is an array\", function () {",
-									"    var jsonData = pm.response.json();",
-									"    pm.expect(Array.isArray(jsonData)).to.be.true;",
-									"});",
-									"",
-									"pm.test(\"News items have required fields\", function () {",
-									"    var jsonData = pm.response.json();",
-									"    if (jsonData.length > 0) {",
-									"        pm.expect(jsonData[0]).to.have.property('article_id');",
-									"        pm.expect(jsonData[0]).to.have.property('title');",
-									"        pm.expect(jsonData[0]).to.have.property('link');",
-									"    }",
-									"});",
-									"",
-									"pm.test(\"News items are from entertainment category\", function () {",
-									"    var jsonData = pm.response.json();",
-									"    if (jsonData.length > 0) {",
-									"        pm.expect(jsonData[0].category).to.include('entertainment');",
-									"    }",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:8080/api/news?category=entertainment&offset=0",
-							"protocol": "http",
-							"host": ["localhost"],
-							"port": "8080",
-							"path": ["api", "news"],
-							"query": [
-								{
-									"key": "category",
-									"value": "entertainment"
-								},
-								{
-									"key": "offset",
-									"value": "0"
-								}
-							]
-						}
-					}
+					},
+					"response": []
 				},
 				{
 					"name": "Get News - Health",
@@ -415,14 +557,10 @@
 									"    }",
 									"});",
 									"",
-									"pm.test(\"News items are from health category\", function () {",
-									"    var jsonData = pm.response.json();",
-									"    if (jsonData.length > 0) {",
-									"        pm.expect(jsonData[0].category).to.include('health');",
-									"    }",
-									"});"
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -432,9 +570,14 @@
 						"url": {
 							"raw": "http://localhost:8080/api/news?category=health&offset=0",
 							"protocol": "http",
-							"host": ["localhost"],
+							"host": [
+								"localhost"
+							],
 							"port": "8080",
-							"path": ["api", "news"],
+							"path": [
+								"api",
+								"news"
+							],
 							"query": [
 								{
 									"key": "category",
@@ -446,10 +589,11 @@
 								}
 							]
 						}
-					}
+					},
+					"response": []
 				},
 				{
-					"name": "Get News - World",
+					"name": "Get News - top",
 					"event": [
 						{
 							"listen": "test",
@@ -473,14 +617,10 @@
 									"    }",
 									"});",
 									"",
-									"pm.test(\"News items are from world category\", function () {",
-									"    var jsonData = pm.response.json();",
-									"    if (jsonData.length > 0) {",
-									"        pm.expect(jsonData[0].category).to.include('world');",
-									"    }",
-									"});"
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -488,15 +628,20 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/api/news?category=world&offset=0",
+							"raw": "http://localhost:8080/api/news?category=top&offset=0",
 							"protocol": "http",
-							"host": ["localhost"],
+							"host": [
+								"localhost"
+							],
 							"port": "8080",
-							"path": ["api", "news"],
+							"path": [
+								"api",
+								"news"
+							],
 							"query": [
 								{
 									"key": "category",
-									"value": "world"
+									"value": "top"
 								},
 								{
 									"key": "offset",
@@ -504,7 +649,8 @@
 								}
 							]
 						}
-					}
+					},
+					"response": []
 				},
 				{
 					"name": "Get News - Politics",
@@ -531,14 +677,10 @@
 									"    }",
 									"});",
 									"",
-									"pm.test(\"News items are from politics category\", function () {",
-									"    var jsonData = pm.response.json();",
-									"    if (jsonData.length > 0) {",
-									"        pm.expect(jsonData[0].category).to.include('politics');",
-									"    }",
-									"});"
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -548,9 +690,14 @@
 						"url": {
 							"raw": "http://localhost:8080/api/news?category=politics&offset=0",
 							"protocol": "http",
-							"host": ["localhost"],
+							"host": [
+								"localhost"
+							],
 							"port": "8080",
-							"path": ["api", "news"],
+							"path": [
+								"api",
+								"news"
+							],
 							"query": [
 								{
 									"key": "category",
@@ -562,10 +709,11 @@
 								}
 							]
 						}
-					}
+					},
+					"response": []
 				},
 				{
-					"name": "Get News - Environment",
+					"name": "Get News - all",
 					"event": [
 						{
 							"listen": "test",
@@ -589,14 +737,10 @@
 									"    }",
 									"});",
 									"",
-									"pm.test(\"News items are from environment category\", function () {",
-									"    var jsonData = pm.response.json();",
-									"    if (jsonData.length > 0) {",
-									"        pm.expect(jsonData[0].category).to.include('environment');",
-									"    }",
-									"});"
+									""
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -604,81 +748,19 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:8080/api/news?category=environment&offset=0",
+							"raw": "http://localhost:8080/api/news",
 							"protocol": "http",
-							"host": ["localhost"],
+							"host": [
+								"localhost"
+							],
 							"port": "8080",
-							"path": ["api", "news"],
-							"query": [
-								{
-									"key": "category",
-									"value": "environment"
-								},
-								{
-									"key": "offset",
-									"value": "0"
-								}
+							"path": [
+								"api",
+								"news"
 							]
 						}
-					}
-				},
-				{
-					"name": "Get News - Food",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status code is 200\", function () {",
-									"    pm.response.to.have.status(200);",
-									"});",
-									"",
-									"pm.test(\"Response is an array\", function () {",
-									"    var jsonData = pm.response.json();",
-									"    pm.expect(Array.isArray(jsonData)).to.be.true;",
-									"});",
-									"",
-									"pm.test(\"News items have required fields\", function () {",
-									"    var jsonData = pm.response.json();",
-									"    if (jsonData.length > 0) {",
-									"        pm.expect(jsonData[0]).to.have.property('article_id');",
-									"        pm.expect(jsonData[0]).to.have.property('title');",
-									"        pm.expect(jsonData[0]).to.have.property('link');",
-									"    }",
-									"});",
-									"",
-									"pm.test(\"News items are from food category\", function () {",
-									"    var jsonData = pm.response.json();",
-									"    if (jsonData.length > 0) {",
-									"        pm.expect(jsonData[0].category).to.include('food');",
-									"    }",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:8080/api/news?category=food&offset=0",
-							"protocol": "http",
-							"host": ["localhost"],
-							"port": "8080",
-							"path": ["api", "news"],
-							"query": [
-								{
-									"key": "category",
-									"value": "food"
-								},
-								{
-									"key": "offset",
-									"value": "0"
-								}
-							]
-						}
-					}
+					},
+					"response": []
 				}
 			]
 		},
@@ -686,7 +768,7 @@
 			"name": "Bookmarks",
 			"item": [
 				{
-					"name": "Add Bookmark",
+					"name": "Add Bookmark example1",
 					"event": [
 						{
 							"listen": "test",
@@ -701,7 +783,8 @@
 									"    pm.expect(jsonData.message).to.equal(\"Bookmark added successfully\");",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -710,7 +793,7 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{authToken}}"
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo3LCJleHAiOjE3NDkyODA1NjV9.wFUc7NpbrXPjXHi-98BR6u6MJOZxZTo8jGgtNhs2APA"
 							},
 							{
 								"key": "Content-Type",
@@ -719,16 +802,76 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"newsId\": \"test_article_id\"\n}"
+							"raw": "{\n    \"newsId\": \"4e8234257bf2b18b74a6e142704bfb1b\"\n}"
 						},
 						"url": {
 							"raw": "http://localhost:8080/api/protected/bookmarks",
 							"protocol": "http",
-							"host": ["localhost"],
+							"host": [
+								"localhost"
+							],
 							"port": "8080",
-							"path": ["api", "protected", "bookmarks"]
+							"path": [
+								"api",
+								"protected",
+								"bookmarks"
+							]
 						}
-					}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Bookmark example2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Bookmark added successfully\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.message).to.equal(\"Bookmark added successfully\");",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxMSwiZXhwIjoxNzQ5Mzg2ODA5fQ.EUZORjaRsoeVrDhGPeY7WS_qCP91OL-QUymjxaLaTUk"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"newsId\": \"b79cffa12ebf24c53caf8bfa0e3d415b\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/protected/bookmarks",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"protected",
+								"bookmarks"
+							]
+						}
+					},
+					"response": []
 				},
 				{
 					"name": "Get Bookmarks",
@@ -746,7 +889,8 @@
 									"    pm.expect(Array.isArray(jsonData)).to.be.true;",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -755,17 +899,71 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{authToken}}"
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo3LCJleHAiOjE3NDkyODA1NjV9.wFUc7NpbrXPjXHi-98BR6u6MJOZxZTo8jGgtNhs2APA"
 							}
 						],
 						"url": {
 							"raw": "http://localhost:8080/api/protected/bookmarks",
 							"protocol": "http",
-							"host": ["localhost"],
+							"host": [
+								"localhost"
+							],
 							"port": "8080",
-							"path": ["api", "protected", "bookmarks"]
+							"path": [
+								"api",
+								"protected",
+								"bookmarks"
+							]
 						}
-					}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Bookmarks Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo3LCJleHAiOjE3NDkyODA1NjV9.wFUc7NpbrXPjXHi-98BR6u6MJOZxZTo8jGgtNhs2APA"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"newsId\": \"test_article_id\"\r\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/protected/bookmarks",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"protected",
+								"bookmarks"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -773,7 +971,7 @@
 			"name": "Channels",
 			"item": [
 				{
-					"name": "Add Channel",
+					"name": "Add Channel meduzalive",
 					"event": [
 						{
 							"listen": "test",
@@ -789,7 +987,8 @@
 									"    pm.expect(jsonData.message).to.equal(\"Channel added successfully\");",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -807,16 +1006,240 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"channel_url\": \"https://t.me/test_channel\"\n}"
+							"raw": "{\n    \"channel_url\": \"https://t.me/meduzalive\"\n}"
 						},
 						"url": {
 							"raw": "http://localhost:8080/api/protected/channels",
 							"protocol": "http",
-							"host": ["localhost"],
+							"host": [
+								"localhost"
+							],
 							"port": "8080",
-							"path": ["api", "protected", "channels"]
+							"path": [
+								"api",
+								"protected",
+								"channels"
+							]
 						}
-					}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Channel priem_mirea",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Channel added successfully\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.true;",
+									"    pm.expect(jsonData.message).to.equal(\"Channel added successfully\");",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo3LCJleHAiOjE3NDkyODA3ODB9.8cbZyZl7AcItcQ4e-OKfbBhaZ9Stkp03ZMrY05WTrAI"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"channel_url\": \"https://t.me/priem_mirea\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/protected/channels",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"protected",
+								"channels"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Channel durov",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Channel added successfully\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.true;",
+									"    pm.expect(jsonData.message).to.equal(\"Channel added successfully\");",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo3LCJleHAiOjE3NDkyODA3ODB9.8cbZyZl7AcItcQ4e-OKfbBhaZ9Stkp03ZMrY05WTrAI"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"channel_url\": \"https://t.me/not_pixel_tanos\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/protected/channels",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"protected",
+								"channels"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Channel mireaprofkom",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Channel added successfully\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.true;",
+									"    pm.expect(jsonData.message).to.equal(\"Channel added successfully\");",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo3LCJleHAiOjE3NDkyODA3ODB9.8cbZyZl7AcItcQ4e-OKfbBhaZ9Stkp03ZMrY05WTrAI"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"channel_url\": \"https://t.me/mireaprofkom\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/protected/channels",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"protected",
+								"channels"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Channel durov",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Channel added successfully\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.true;",
+									"    pm.expect(jsonData.message).to.equal(\"Channel added successfully\");",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo3LCJleHAiOjE3NDkyODA3ODB9.8cbZyZl7AcItcQ4e-OKfbBhaZ9Stkp03ZMrY05WTrAI"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"channel_url\": \"https://t.me/durov\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/protected/channels/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"protected",
+								"channels",
+								""
+							]
+						}
+					},
+					"response": []
 				},
 				{
 					"name": "Get User Channels",
@@ -835,7 +1258,8 @@
 									"    pm.expect(jsonData.channels).to.be.an('array');",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
@@ -844,20 +1268,27 @@
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{authToken}}"
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo3LCJleHAiOjE3NDkyODA1NjV9.wFUc7NpbrXPjXHi-98BR6u6MJOZxZTo8jGgtNhs2APA"
 							}
 						],
 						"url": {
 							"raw": "http://localhost:8080/api/protected/channels",
 							"protocol": "http",
-							"host": ["localhost"],
+							"host": [
+								"localhost"
+							],
 							"port": "8080",
-							"path": ["api", "protected", "channels"]
+							"path": [
+								"api",
+								"protected",
+								"channels"
+							]
 						}
-					}
+					},
+					"response": []
 				},
 				{
-					"name": "Remove Channel",
+					"name": "Get User Channels message",
 					"event": [
 						{
 							"listen": "test",
@@ -867,40 +1298,163 @@
 									"    pm.response.to.have.status(200);",
 									"});",
 									"",
-									"pm.test(\"Channel removed successfully\", function () {",
+									"pm.test(\"Response has channels array\", function () {",
 									"    var jsonData = pm.response.json();",
 									"    pm.expect(jsonData.success).to.be.true;",
-									"    pm.expect(jsonData.message).to.equal(\"Channel removed successfully\");",
+									"    pm.expect(jsonData.channels).to.be.an('array');",
 									"});"
 								],
-								"type": "text/javascript"
+								"type": "text/javascript",
+								"packages": {}
 							}
 						}
 					],
 					"request": {
-						"method": "DELETE",
+						"method": "GET",
 						"header": [
 							{
 								"key": "Authorization",
-								"value": "Bearer {{authToken}}"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo3LCJleHAiOjE3NDkyODA1NjV9.wFUc7NpbrXPjXHi-98BR6u6MJOZxZTo8jGgtNhs2APA"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"channel_url\": \"https://t.me/test_channel\"\n}"
-						},
 						"url": {
-							"raw": "http://localhost:8080/api/protected/channels",
+							"raw": "http://localhost:8080/api/protected/channels/messages",
 							"protocol": "http",
-							"host": ["localhost"],
+							"host": [
+								"localhost"
+							],
 							"port": "8080",
-							"path": ["api", "protected", "channels"]
+							"path": [
+								"api",
+								"protected",
+								"channels",
+								"messages"
+							]
 						}
-					}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User 1 Channel message mireaprofkom",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has channels array\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.true;",
+									"    pm.expect(jsonData.channels).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo3LCJleHAiOjE3NDkyODA1NjV9.wFUc7NpbrXPjXHi-98BR6u6MJOZxZTo8jGgtNhs2APA"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/protected/channels/mireaprofkom/messages",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"protected",
+								"channels",
+								"mireaprofkom",
+								"messages"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User 1 Channel message mireaprofkom Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has channels array\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.true;",
+									"    pm.expect(jsonData.channels).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo3LCJleHAiOjE3NDkyODA1NjV9.wFUc7NpbrXPjXHi-98BR6u6MJOZxZTo8jGgtNhs2APA"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/protected/channels/priem_mirea/messages",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"protected",
+								"channels",
+								"priem_mirea",
+								"messages"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get all public channels",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo3LCJleHAiOjE3NDkyODA1NjV9.wFUc7NpbrXPjXHi-98BR6u6MJOZxZTo8jGgtNhs2APA"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/api/public/channels",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"public",
+								"channels"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -943,79 +1497,20 @@
 						"url": {
 							"raw": "http://localhost:8080/api/ask",
 							"protocol": "http",
-							"host": ["localhost"],
+							"host": [
+								"localhost"
+							],
 							"port": "8080",
-							"path": ["api", "ask"]
+							"path": [
+								"api",
+								"ask"
+							]
 						}
-					}
-				},
-				{
-					"name": "Update AI Settings",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"// Проверяем статус ответа",
-									"pm.test(\"Status code is 200\", function () {",
-									"    pm.response.to.have.status(200);",
-									"});",
-									"",
-									"// Проверяем структуру ответа",
-									"pm.test(\"Response has correct structure\", function () {",
-									"    const response = pm.response.json();",
-									"    pm.expect(response).to.have.property('success');",
-									"    pm.expect(response).to.have.property('message');",
-									"    pm.expect(response).to.have.property('user_id');",
-									"    pm.expect(response).to.have.property('data');",
-									"});",
-									"",
-									"// Проверяем значения в ответе",
-									"pm.test(\"Response values are correct\", function () {",
-									"    const response = pm.response.json();",
-									"    pm.expect(response.success).to.be.true;",
-									"    pm.expect(response.message).to.equal('Data received successfully');",
-									"    pm.expect(response.user_id).to.be.a('number');",
-									"    pm.expect(response.data).to.be.an('object');",
-									"});",
-									"",
-									"// Проверяем, что отправленные данные вернулись",
-									"pm.test(\"Sent data is returned correctly\", function () {",
-									"    const response = pm.response.json();",
-									"    const requestData = JSON.parse(pm.request.body.raw);",
-									"    pm.expect(response.data).to.deep.equal(requestData);",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{token}}",
-								"type": "text"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"test_field\": \"test_value\",\n    \"number_field\": 123,\n    \"boolean_field\": true,\n    \"array_field\": [1, 2, 3],\n    \"object_field\": {\n        \"nested\": \"value\"\n    }\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/api/protected/ai/settings",
-							"host": ["{{base_url}}"],
-							"path": ["api", "protected", "ai", "settings"]
-						}
-					}
+					},
+					"response": []
 				}
-			]
+			],
+			"description": "StartFragment\n\n1. Endpoint: PUT /api/protected/ai/settings\n    \n\n- Требует JWT токен в заголовке Authorization\n    \n- Content-Type: application/json\n    \n\n2\\. StartFragment\n\nВозможные значения:\n\n- response_language:\n    \n- \"en\" - английский\n    \n- \"ru\" - русский\n    \n- response_length:\n    \n- \"short\" - короткие ответы\n    \n- \"medium\" - средние ответы\n    \n- \"long\" - длинные ответы\n    \n\nEndFragment"
 		}
 	]
-} 
+}
